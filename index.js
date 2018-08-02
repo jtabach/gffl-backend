@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 
 const app = express();
 
-require('./routes/index.js')(app);
+require('./routes')(app);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT);
