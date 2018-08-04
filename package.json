@@ -1,9 +1,16 @@
 {
   "name": "gffl-backend",
   "version": "0.0.0",
+  "description": "",
+  "main": "index.js",
+  "engines": {
+    "node": "9.6.1",
+    "npm": "5.6.0"
+  },
   "private": true,
   "scripts": {
-    "start": "nodemon index.js"
+    "start": "node index.js",
+    "dev": "nodemon index.js"
   },
   "dependencies": {
     "body-parser": "~1.13.2",
