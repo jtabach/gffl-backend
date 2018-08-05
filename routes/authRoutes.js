@@ -16,6 +16,23 @@ module.exports = app => {
     }
   );
 
+  app.get(
+    '/auth/register',
+    // some function for registering the user and saving to the DB
+    // callback for logging the user in and returning a jwt,
+    (req, res) => {
+      console.log(req.body);
+    }
+  );
+
+  app.get(
+    '/auth/login',
+    // some function for logging in the user and returning a jwt
+    (req, res) => {
+      console.log(req.body);
+    }
+  );
+
   app.get('/api/logout', (req, res) => {
     req.logout();
   });
