@@ -67,6 +67,11 @@ userSchema.statics.login = (req, res, next) => {
   });
 };
 
+userSchema.statics.logout = (req, res, next) => {
+  res.clearCookie('authToken');
+  next();
+};
+
 _encodeAuthToken = user => {
   let authData = {
     username: user.username,

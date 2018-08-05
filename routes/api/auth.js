@@ -34,8 +34,8 @@ router.post(
   }
 );
 
-router.get('/logout', (req, res) => {
-  req.logout();
+router.post('/logout', User.logout, (req, res) => {
+  res.send({ verify: true, message: 'Logged out successfully' });
 });
 
 router.get('/current_user', (req, res) => {
