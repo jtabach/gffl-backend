@@ -3,6 +3,8 @@ const Schema = mongoose.Schema;
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
+const keys = require('../config/keys');
+
 const userSchema = new Schema({
   password: { type: String, required: true },
   email: { type: String, lowercase: true, trim: true, required: true }
@@ -11,10 +13,8 @@ const userSchema = new Schema({
 });
 
 userSchema.statics.register = (req, res, next) => {
-  console.log(req);
   const email = req.body.email.toLowerCase();
   const password = req.body.password;
-  console.log(email, password);
 
   // check if user or email already exists
   User.findOne({ email: email }, (err, foundUser) => {
@@ -32,12 +32,24 @@ userSchema.statics.register = (req, res, next) => {
       // Store hash in db
       user.email = email;
       user.password = hash;
-      user.save(err => {
+      user.save((err, savedUser) => {
         if (err) return res.status(400).send(err);
+        const authToken = _encodeAuthToken(savedUser);
+        res.cookie('authToken', authToken);
         next();
       });
     });
   });
+};
+
+_encodeAuthToken = user => {
+  let authData = {
+    username: user.username,
+    email: user.email,
+    _id: user._id,
+    iat: Date.now()
+  };
+  return jwt.sign(authData, keys.jwtSecret);
 };
 
 const User = mongoose.model('users', userSchema);
