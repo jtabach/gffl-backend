@@ -42,6 +42,31 @@ userSchema.statics.register = (req, res, next) => {
   });
 };
 
+userSchema.statics.login = (req, res, next) => {
+  if (!req.body.email || !req.body.password) {
+    return res.status(400).send('Missing e-mail or password');
+  }
+  User.findOne({ email: req.body.email }, (err, foundUser) => {
+    if (err) return res.status(400).send(err);
+    if (!foundUser) {
+      return res
+        .status(400)
+        .send({ verify: false, message: 'Email address not found' });
+    }
+    bcrypt.compare(req.body.password, foundUser.password, (err, correct) => {
+      if (err) return res.status(400).send(err);
+      if (!correct) {
+        return res
+          .status(403)
+          .send({ verify: false, message: 'Incorrect password' });
+      }
+      const authToken = _encodeAuthToken(foundUser);
+      res.cookie('authToken', authToken);
+      next();
+    });
+  });
+};
+
 _encodeAuthToken = user => {
   let authData = {
     username: user.username,

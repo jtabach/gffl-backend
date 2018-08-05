@@ -28,8 +28,9 @@ router.post(
 router.post(
   '/login',
   // some function for logging in the user and returning a jwt
+  User.login,
   (req, res) => {
-    console.log(req.body);
+    res.send({ verify: true, message: 'Logged in successfully' });
   }
 );
 

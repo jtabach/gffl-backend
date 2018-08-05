@@ -19,8 +19,7 @@ require('./services/cookieSession')(app);
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.use(bodyParser({ limit: '50mb' }));
-app.use(bodyParser.json());
+app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ extended: false }));
 
 app.use('/api', require('./routes/api'));
