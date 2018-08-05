@@ -2,10 +2,10 @@ const express = require('express');
 const mongoose = require('mongoose');
 const passport = require('passport');
 const keys = require('./config/keys');
-require('./models/User');
+require('./models/GoogleUser');
 require('./services/passport');
 
-mongoose.connect(keys.mongoURI);
+mongoose.connect(keys.mongoURI, { useNewUrlParser: true });
 
 const app = express();
 
