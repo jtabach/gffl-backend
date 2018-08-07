@@ -27,7 +27,7 @@ router.post('/logout', User.logout, (req, res) => {
   res.send({ user: res.user });
 });
 
-router.get('/user/:token', User.getUser, (req, res) => {
+router.get('/user', User.getUser, (req, res) => {
   res.send({ user: res.user });
 });
 

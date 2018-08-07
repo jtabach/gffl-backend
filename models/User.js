@@ -78,9 +78,9 @@ userSchema.statics.logout = (req, res, next) => {
 };
 
 userSchema.statics.getUser = (req, res, next) => {
-  const { token } = req.params;
+  const { authToken } = req.cookies;
   try {
-    var decoded = jwt.verify(token, keys.jwtSecret);
+    var decoded = jwt.verify(authToken, keys.jwtSecret);
   } catch (err) {
     var decoded = false;
   }

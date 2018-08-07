@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const passport = require('passport');
 const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
 
 const keys = require('./config/keys');
 
@@ -21,6 +22,7 @@ app.use(passport.session());
 
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(cookieParser());
 
 app.use('/api', require('./routes/api'));
 app.get('/*', (req, res, next) => {
