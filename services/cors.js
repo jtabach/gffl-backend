@@ -8,7 +8,7 @@ module.exports = app => {
       'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept'
     );
     if ('OPTIONS' == req.method) {
-      res.send(200);
+      res.sendStatus(200);
     } else {
       next();
     }

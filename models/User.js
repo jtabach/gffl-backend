@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const _ = require('lodash');
 
 const keys = require('../config/keys');
 
@@ -62,6 +63,8 @@ userSchema.statics.login = (req, res, next) => {
       }
       const authToken = _encodeAuthToken(foundUser);
       res.cookie('authToken', authToken);
+      // TODO: Don't send the user hashed password to the client
+      res.user = foundUser;
       next();
     });
   });
