@@ -75,6 +75,17 @@ userSchema.statics.logout = (req, res, next) => {
   next();
 };
 
+userSchema.statics.getUser = (req, res, next) => {
+  const token = req.params.token;
+  try {
+    var decoded = jwt.verify(token, keys.jwtSecret);
+  } catch (err) {
+    var decoded = false;
+  }
+  res.user = decoded;
+  next();
+};
+
 _encodeAuthToken = user => {
   let authData = {
     username: user.username,

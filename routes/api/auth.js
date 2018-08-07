@@ -27,6 +27,10 @@ router.post('/logout', User.logout, (req, res) => {
   res.send({ verify: true, message: 'Logged out successfully' });
 });
 
+router.get('/user/:token', User.getUser, (req, res) => {
+  res.send({ user: res.user });
+});
+
 router.get('/current_user', (req, res) => {
   res.send(req.user);
 });
