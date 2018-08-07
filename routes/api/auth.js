@@ -16,7 +16,7 @@ router.get('/google/callback', passport.authenticate('google'), (req, res) => {
 });
 
 router.post('/register', User.register, (req, res) => {
-  res.send({ verify: true, message: 'Registered successfully' });
+  res.send({ user: res.user });
 });
 
 router.post('/login', User.login, (req, res) => {
@@ -24,7 +24,7 @@ router.post('/login', User.login, (req, res) => {
 });
 
 router.post('/logout', User.logout, (req, res) => {
-  res.send({ verify: true, message: 'Logged out successfully' });
+  res.send({ user: res.user });
 });
 
 router.get('/user/:token', User.getUser, (req, res) => {

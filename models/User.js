@@ -37,6 +37,7 @@ userSchema.statics.register = (req, res, next) => {
         if (err) return res.status(400).send(err);
         const authToken = _encodeAuthToken(savedUser);
         res.cookie('authToken', authToken);
+        res.user = savedUser;
         next();
       });
     });
@@ -72,11 +73,12 @@ userSchema.statics.login = (req, res, next) => {
 
 userSchema.statics.logout = (req, res, next) => {
   res.clearCookie('authToken');
+  res.user = false;
   next();
 };
 
 userSchema.statics.getUser = (req, res, next) => {
-  const token = req.params.token;
+  const { token } = req.params;
   try {
     var decoded = jwt.verify(token, keys.jwtSecret);
   } catch (err) {
