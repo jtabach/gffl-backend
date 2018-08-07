@@ -79,12 +79,8 @@ userSchema.statics.logout = (req, res, next) => {
 
 userSchema.statics.getUser = (req, res, next) => {
   const { authToken } = req.cookies;
-  try {
-    var decoded = jwt.verify(authToken, keys.jwtSecret);
-  } catch (err) {
-    var decoded = false;
-  }
-  res.user = decoded;
+  const user = _decodeAuthToken(authToken);
+  res.user = user;
   next();
 };
 
@@ -96,6 +92,14 @@ _encodeAuthToken = user => {
     iat: Date.now()
   };
   return jwt.sign(authData, keys.jwtSecret);
+};
+
+_decodeAuthToken = authToken => {
+  try {
+    return jwt.verify(authToken, keys.jwtSecret);
+  } catch (err) {
+    return false;
+  }
 };
 
 const User = mongoose.model('users', userSchema);
