@@ -1,16 +1,13 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
 const _ = require('lodash');
-
-const keys = require('../config/keys');
+const helper = require('../helpers');
 
 const userSchema = new Schema({
   password: { type: String, required: true },
-  email: { type: String, lowercase: true, trim: true, required: true }
-  // leagues: [{ type: mongoose.Schema.Types.ObjectId, ref: 'League' }],
-  // teams: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Team' }]
+  email: { type: String, lowercase: true, trim: true, required: true },
+  teams: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Team' }]
 });
 
 userSchema.statics.register = (req, res, next) => {
@@ -35,7 +32,7 @@ userSchema.statics.register = (req, res, next) => {
       user.password = hash;
       user.save((err, savedUser) => {
         if (err) return res.status(400).send(err);
-        const authToken = _encodeAuthToken(savedUser);
+        const authToken = helper.encodeAuthToken(savedUser);
         res.cookie('authToken', authToken);
         res.user = savedUser;
         next();
@@ -62,7 +59,7 @@ userSchema.statics.login = (req, res, next) => {
           .status(403)
           .send({ verify: false, message: 'Incorrect password' });
       }
-      const authToken = _encodeAuthToken(foundUser);
+      const authToken = helper.encodeAuthToken(foundUser);
       res.cookie('authToken', authToken);
       // TODO: Don't send the user hashed password to the client
       res.user = foundUser;
@@ -79,27 +76,9 @@ userSchema.statics.logout = (req, res, next) => {
 
 userSchema.statics.getUser = (req, res, next) => {
   const { authToken } = req.cookies;
-  const user = _decodeAuthToken(authToken);
+  const user = helper.decodeAuthToken(authToken);
   res.user = user;
   next();
-};
-
-_encodeAuthToken = user => {
-  let authData = {
-    username: user.username,
-    email: user.email,
-    _id: user._id,
-    iat: Date.now()
-  };
-  return jwt.sign(authData, keys.jwtSecret);
-};
-
-_decodeAuthToken = authToken => {
-  try {
-    return jwt.verify(authToken, keys.jwtSecret);
-  } catch (err) {
-    return false;
-  }
 };
 
 const User = mongoose.model('users', userSchema);

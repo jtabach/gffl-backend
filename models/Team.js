@@ -14,6 +14,12 @@ teamSchema = new Schema({
   }
 });
 
+// teamSchem.statics.createTeam = teamData => {
+// teamData will consist of League ID and Team name
+// leagueId will either come from res or teamData
+// userId will come from
+// };
+
 const Team = mongoose.model('teams', teamSchema);
 
 module.exports = Team;

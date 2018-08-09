@@ -1,6 +1,11 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
+const helper = require('../helpers');
+
+const Team = require('./Team');
+const User = require('./User');
+
 leagueSchema = new Schema({
   name: { type: String, required: true },
   admin: {
@@ -12,19 +17,29 @@ leagueSchema = new Schema({
 });
 
 leagueSchema.statics.createLeague = (req, res, next) => {
-  // get authToken from req.cookies
-  // decode cookie to get the user._id
-  // save new league to DB
-  // in next():
-  // save new team to DB --> Team.createTeam
-  // save new team to League model array of teams --> League.addTeamToLeague
-  // save new league to User model array of leagues
-  // save new team to User model array of teams
-};
+  let { authToken } = req.cookies;
+  let user = helper.decodeAuthToken(authToken);
 
-leagueSchema.statics.addTeamToLeague = (req, res, next) => {
-  // takes leagueId and UserId from res
-  // fetch league by league Id and push team to teams array
+  let newLeague = new League();
+  let newTeam = new Team();
+
+  newLeague.name = req.body.leagueName;
+  newLeague.admin = user._id;
+  newLeague.teams.push(newTeam.id);
+
+  newTeam.name = req.body.teamName;
+  newTeam.user = user._id;
+  newTeam.league = newLeague.id;
+
+  return newLeague
+    .save()
+    .then(() => newTeam.save())
+    .then(() => User.findById(user._id))
+    .then(foundUser => {
+      foundUser.teams.push(newTeam.id);
+      return foundUser.save();
+    })
+    .then(() => next());
 };
 
 const League = mongoose.model('leagues', leagueSchema);

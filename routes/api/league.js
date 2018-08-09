@@ -6,3 +6,5 @@ const League = require('../../models/League');
 router.post('/', League.createLeague, (req, res) => {
   res.send('league');
 });
+
+module.exports = router;
