@@ -4,10 +4,13 @@ const bcrypt = require('bcrypt');
 const _ = require('lodash');
 const helper = require('../helpers');
 
+const League = require('./League');
+const Team = require('./Team');
+
 const userSchema = new Schema({
   password: { type: String, required: true },
   email: { type: String, lowercase: true, trim: true, required: true },
-  teams: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Team' }]
+  teams: [{ type: mongoose.Schema.Types.ObjectId, ref: 'teams' }]
 });
 
 userSchema.statics.register = (req, res, next) => {
@@ -79,6 +82,21 @@ userSchema.statics.getUser = (req, res, next) => {
   const user = helper.decodeAuthToken(authToken);
   res.user = user;
   next();
+};
+
+userSchema.statics.getLeagues = (req, res, next) => {
+  let { authToken } = req.cookies;
+  let user = helper.decodeAuthToken(authToken);
+  console.log(user);
+
+  mongoose
+    .model('teams')
+    .findOne({ user: user._id })
+    .populate('league')
+    .exec((err, teams) => {
+      res.teams = teams;
+      next();
+    });
 };
 
 const User = mongoose.model('users', userSchema);

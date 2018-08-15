@@ -9,12 +9,12 @@ const User = require('./User');
 teamSchema = new Schema({
   user: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
+    ref: 'users',
     required: true
   },
   league: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'League',
+    ref: 'leagues',
     required: true
   },
   name: { type: String, required: true }

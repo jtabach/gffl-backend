@@ -10,10 +10,10 @@ leagueSchema = new Schema({
   name: { type: String, required: true },
   admin: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
+    ref: 'users',
     required: true
   },
-  teams: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Team' }]
+  teams: [{ type: mongoose.Schema.Types.ObjectId, ref: 'teams' }]
 });
 
 leagueSchema.statics.createLeague = (req, res, next) => {
