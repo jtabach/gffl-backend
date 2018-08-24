@@ -91,10 +91,10 @@ userSchema.statics.getLeagues = (req, res, next) => {
 
   mongoose
     .model('teams')
-    .findOne({ user: user._id })
+    .find({ user: user._id })
     .populate('league')
     .exec((err, teams) => {
-      res.teams = teams;
+      res.teams = teams || [];
       next();
     });
 };
