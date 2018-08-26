@@ -80,10 +80,22 @@ userSchema.statics.logout = (req, res, next) => {
 userSchema.statics.getUser = (req, res, next) => {
   const { authToken } = req.cookies;
   const user = helper.decodeAuthToken(authToken);
-  res.user = user;
-  next();
+  // console.log(user);
+  User.findById(user._id)
+    .populate({
+      path: 'teams',
+      populate: {
+        path: 'league',
+        model: 'leagues'
+      }
+    })
+    .exec((err, userPopulated) => {
+      res.user = userPopulated;
+      next();
+    });
 };
 
+// TODO: remove due to redundancy, of getUser
 userSchema.statics.getTeams = (req, res, next) => {
   let { authToken } = req.cookies;
   let user = helper.decodeAuthToken(authToken);
