@@ -3,9 +3,8 @@ const router = express.Router();
 
 const User = require('../../models/User');
 
-router.get('/leagues', User.getLeagues, (req, res) => {
+router.get('/teams', User.getTeams, (req, res) => {
   res.send({ teams: res.teams });
-  // res.send('team');
 });
 
 module.exports = router;

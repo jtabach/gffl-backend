@@ -84,7 +84,7 @@ userSchema.statics.getUser = (req, res, next) => {
   next();
 };
 
-userSchema.statics.getLeagues = (req, res, next) => {
+userSchema.statics.getTeams = (req, res, next) => {
   let { authToken } = req.cookies;
   let user = helper.decodeAuthToken(authToken);
   console.log(user);
