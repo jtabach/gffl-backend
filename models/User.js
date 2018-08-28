@@ -27,7 +27,6 @@ userSchema.statics.register = (req, res, next) => {
 
     // create new user instance
     let user = new User();
-
     // hash plaintext password
     bcrypt.hash(password, 10, function(err, hash) {
       // Store hash in db
@@ -83,7 +82,10 @@ userSchema.statics.logout = (req, res, next) => {
 userSchema.statics.getUser = (req, res, next) => {
   const { authToken } = req.cookies;
   const user = helper.decodeAuthToken(authToken);
-  // console.log(user);
+  if (!user) {
+    res.user = user;
+    next();
+  }
   User.findById(user._id)
     .populate({
       path: 'teams',
