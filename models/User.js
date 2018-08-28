@@ -46,23 +46,26 @@ userSchema.statics.register = (req, res, next) => {
 
 userSchema.statics.login = (req, res, next) => {
   if (!req.body.email || !req.body.password) {
-    return res.status(400).send('Missing e-mail or password');
+    return res
+      .status(400)
+      .send({ user: false, message: 'Missing e-mail or password' });
   }
   User.findOne({ email: req.body.email }, (err, foundUser) => {
     if (err) return res.status(400).send(err);
     if (!foundUser) {
       return res
         .status(400)
-        .send({ verify: false, message: 'Email address not found' });
+        .send({ user: false, message: 'Email address not found' });
     }
     bcrypt.compare(req.body.password, foundUser.password, (err, correct) => {
       if (err) return res.status(400).send(err);
       if (!correct) {
         return res
           .status(403)
-          .send({ verify: false, message: 'Incorrect password' });
+          .send({ user: false, message: 'Incorrect password' });
       }
       const authToken = helper.encodeAuthToken(foundUser);
+
       res.cookie('authToken', authToken);
       // TODO: Don't send the user hashed password to the client
       res.user = foundUser;
