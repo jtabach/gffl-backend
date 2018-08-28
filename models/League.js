@@ -37,10 +37,9 @@ leagueSchema.statics.createLeague = (req, res, next) => {
     .then(() => mongoose.model('users').findById(user._id))
     .then(foundUser => {
       foundUser.teams.push(newTeam.id);
-      foundUser.save((err, savedUser) =>
-        helper.populateUser(savedUser, res, next)
-      );
-    });
+      return foundUser.save();
+    })
+    .then(foundUser => helper.populateUser(foundUser, res, next));
 };
 
 const League = mongoose.model('leagues', leagueSchema);
