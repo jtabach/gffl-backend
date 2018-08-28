@@ -1,6 +1,9 @@
 const jwt = require('jsonwebtoken');
 const keys = require('../config/keys');
 
+const mongoose = require('mongoose');
+const User = require('../models/User');
+
 module.exports = {
   encodeAuthToken(user) {
     let authData = {
@@ -18,5 +21,23 @@ module.exports = {
     } catch (err) {
       return false;
     }
+  },
+
+  populateUser(user, res, next) {
+    console.log(user);
+    mongoose
+      .model('users')
+      .findById(user._id)
+      .populate({
+        path: 'teams',
+        populate: {
+          path: 'league',
+          model: 'leagues'
+        }
+      })
+      .exec((err, userPopulated) => {
+        res.user = userPopulated;
+        next();
+      });
   }
 };

@@ -67,8 +67,7 @@ userSchema.statics.login = (req, res, next) => {
 
       res.cookie('authToken', authToken);
       // TODO: Don't send the user hashed password to the client
-      res.user = foundUser;
-      next();
+      helper.populateUser(foundUser, res, next);
     });
   });
 };
@@ -85,26 +84,15 @@ userSchema.statics.getUser = (req, res, next) => {
   if (!user) {
     res.user = user;
     next();
+  } else {
+    helper.populateUser(user, res, next);
   }
-  User.findById(user._id)
-    .populate({
-      path: 'teams',
-      populate: {
-        path: 'league',
-        model: 'leagues'
-      }
-    })
-    .exec((err, userPopulated) => {
-      res.user = userPopulated;
-      next();
-    });
 };
 
 // TODO: remove due to redundancy, of getUser
 userSchema.statics.getTeams = (req, res, next) => {
   let { authToken } = req.cookies;
   let user = helper.decodeAuthToken(authToken);
-  console.log(user);
 
   mongoose
     .model('teams')
