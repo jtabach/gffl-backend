@@ -36,17 +36,17 @@ teamSchema.statics.createTeam = (req, res, next) => {
   mongoose
     .model('leagues')
     .findById(newTeam.league, (err, foundLeague) => {
-      if (err) return res.status(400).send(err);
+      // if (err) return res.status(400).send(err);
 
       return Team.findOne({ user: newTeam.user, league: newTeam.league });
     })
     .then(foundTeam => {
       // if (err) return res.status(400).send(err);
 
-      if (foundTeam)
-        return res.status(400).send({
-          message: 'You already have a team in this league'
-        });
+      // if (foundTeam)
+      //   return res.status(400).send({
+      //     message: 'You already have a team in this league'
+      //   });
       // return out of request with error
       return Team.findOne({ name: newTeam.name, league: newTeam.league });
     })
@@ -70,10 +70,7 @@ teamSchema.statics.createTeam = (req, res, next) => {
       foundUser.teams.push(newTeam._id);
       return foundUser.save();
     })
-    .then(() => next())
-    .catch(err => {
-      console.log(err);
-    });
+    .then(foundUser => helper.populateUser(foundUser, res, next));
 };
 
 const Team = mongoose.model('teams', teamSchema);
