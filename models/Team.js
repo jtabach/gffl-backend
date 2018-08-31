@@ -70,7 +70,7 @@ teamSchema.statics.createTeam = (req, res, next) => {
       foundUser.teams.push(newTeam._id);
       return foundUser.save();
     })
-    .then(foundUser => helper.populateUser(foundUser, res, next));
+    .then(() => helper.populateTeam(newTeam, res, next));
 };
 
 const Team = mongoose.model('teams', teamSchema);

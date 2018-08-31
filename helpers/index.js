@@ -24,7 +24,6 @@ module.exports = {
   },
 
   populateUser(user, res, next) {
-    console.log(user);
     mongoose
       .model('users')
       .findById(user._id)
@@ -37,6 +36,17 @@ module.exports = {
       })
       .exec((err, userPopulated) => {
         res.user = userPopulated;
+        next();
+      });
+  },
+
+  populateTeam(team, res, next) {
+    mongoose
+      .model('teams')
+      .findById(team._id)
+      .populate({ path: 'league' })
+      .exec((err, teamPopulated) => {
+        res.team = teamPopulated;
         next();
       });
   }
