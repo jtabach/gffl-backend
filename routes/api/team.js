@@ -4,7 +4,7 @@ const router = express.Router();
 const Team = require('../../models/Team');
 
 router.post('/', Team.createTeam, (req, res) => {
-  res.send({ user: res.user });
+  res.send({ team: res.team });
 });
 
 module.exports = router;
