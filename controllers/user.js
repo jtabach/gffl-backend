@@ -4,10 +4,14 @@ const helper = require('../helpers');
 
 const Team = require('../models/Team');
 
-// Methods are added to object by dot notation for readability
-const UserController = {};
+// Methods are added to object by refence to function for
+// quick readability of controller methods
+const UserController = {
+  getUser,
+  getTeams
+};
 
-UserController.getUser = (req, res, next) => {
+function getUser(req, res, next) {
   const { authToken } = req.cookies;
   const user = helper.decodeAuthToken(authToken);
   if (!user) {
@@ -15,10 +19,10 @@ UserController.getUser = (req, res, next) => {
   } else {
     helper.populateUser(user, res, next);
   }
-};
+}
 
 // TODO: remove due to redundancy, of getUser
-UserController.getTeams = (req, res, next) => {
+function getTeams(req, res, next) {
   let { authToken } = req.cookies;
   let user = helper.decodeAuthToken(authToken);
 
@@ -29,6 +33,6 @@ UserController.getTeams = (req, res, next) => {
     .exec((err, teams) => {
       return res.status(200).send({ teams: teams || [] });
     });
-};
+}
 
 module.exports = UserController;

@@ -4,10 +4,15 @@ const bcrypt = require('bcrypt');
 const helper = require('../helpers');
 const User = require('../models/User');
 
-// Methods are added to object by dot notation for readability
-const AuthController = {};
+// Methods are added to object by refence to function for
+// quick readability of controller methods
+const AuthController = {
+  register,
+  login,
+  logout
+};
 
-AuthController.register = (req, res, next) => {
+function register(req, res, next) {
   const email = req.body.email.toLowerCase();
   const password = req.body.password;
 
@@ -47,9 +52,9 @@ AuthController.register = (req, res, next) => {
       });
     });
   });
-};
+}
 
-AuthController.login = (req, res, next) => {
+function login(req, res, next) {
   if (!req.body.email || !req.body.password) {
     return res
       .status(400)
@@ -76,11 +81,11 @@ AuthController.login = (req, res, next) => {
       helper.populateUser(foundUser, res, next);
     });
   });
-};
+}
 
-AuthController.logout = (req, res, next) => {
+function logout(req, res, next) {
   res.clearCookie('authToken');
   return res.status(200).send({ user: false });
-};
+}
 
 module.exports = AuthController;

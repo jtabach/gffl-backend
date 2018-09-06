@@ -6,9 +6,11 @@ const Team = require('../models/Team');
 const User = require('../models/User');
 const League = require('../models/League');
 
-const TeamController = {};
+const TeamController = {
+  createTeam
+};
 
-TeamController.createTeam = (req, res, next) => {
+function createTeam(req, res, next) {
   let { authToken } = req.cookies;
   let user = helper.decodeAuthToken(authToken);
 
@@ -62,6 +64,6 @@ TeamController.createTeam = (req, res, next) => {
       return foundUser.save();
     })
     .then(() => helper.populateTeam(newTeam, res, next));
-};
+}
 
 module.exports = TeamController;
