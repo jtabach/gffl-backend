@@ -15,9 +15,7 @@ router.get('/google/callback', passport.authenticate('google'), (req, res) => {
   res.send(req.user);
 });
 
-router.post('/register', User.register, (req, res) => {
-  res.send({ user: res.user });
-});
+router.post('/register', User.register);
 
 router.post('/login', User.login, (req, res) => {
   res.send({ user: res.user });

@@ -19,11 +19,18 @@ userSchema.statics.register = (req, res, next) => {
 
   // check if user or email already exists
   User.findOne({ email: email }, (err, foundUser) => {
-    if (err) return res.status(400).send(err);
-    if (foundUser)
+    if (err) {
+      return res.status(400).send({
+        verify: false,
+        message: 'Something went wrong. Please try again'
+      });
+    }
+    if (foundUser) {
       return res
         .status(400)
-        .send({ verify: false, message: 'Email has already been taken.' });
+        .send({ verify: false, message: 'Email has already been taken' });
+      // return next('Email has already been taken');
+    }
 
     // create new user instance
     let user = new User();
@@ -33,11 +40,16 @@ userSchema.statics.register = (req, res, next) => {
       user.email = email;
       user.password = hash;
       user.save((err, savedUser) => {
-        if (err) return res.status(400).send(err);
+        if (err) {
+          return res.status(400).send({
+            verify: false,
+            message: 'Something went wrong. Please try again'
+          });
+        }
         const authToken = helper.encodeAuthToken(savedUser);
         res.cookie('authToken', authToken);
         res.user = savedUser;
-        next();
+        return res.send({ user: res.user });
       });
     });
   });
