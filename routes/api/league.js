@@ -1,10 +1,8 @@
 const express = require('express');
 const router = express.Router();
 
-const League = require('../../models/League');
+const LeagueController = require('../../controllers/league');
 
-router.post('/', League.createLeague, (req, res) => {
-  res.send({ team: res.team });
-});
+router.post('/', LeagueController.createLeague);
 
 module.exports = router;
