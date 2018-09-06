@@ -1,10 +1,8 @@
 const express = require('express');
 const router = express.Router();
 
-const Team = require('../../models/Team');
+const TeamController = require('../../controllers/team');
 
-router.post('/', Team.createTeam, (req, res) => {
-  res.send({ team: res.team });
-});
+router.post('/', TeamController.createTeam);
 
 module.exports = router;

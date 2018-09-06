@@ -46,8 +46,7 @@ module.exports = {
       .findById(team._id)
       .populate({ path: 'league' })
       .exec((err, teamPopulated) => {
-        res.team = teamPopulated;
-        next();
+        return res.status(200).send({ team: teamPopulated });
       });
   }
 };
