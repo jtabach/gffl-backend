@@ -10,7 +10,8 @@ leagueSchema = new Schema({
     ref: 'User',
     required: true
   },
-  teams: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Team' }]
+  teams: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Team' }],
+  posts: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Post' }]
 });
 
 const League = mongoose.model('League', leagueSchema);
