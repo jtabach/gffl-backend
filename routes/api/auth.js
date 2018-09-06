@@ -17,10 +17,7 @@ router.get('/google/callback', passport.authenticate('google'), (req, res) => {
 });
 
 router.post('/register', AuthController.register);
-
-router.post('/login', User.login, (req, res) => {
-  res.send({ user: res.user });
-});
+router.post('/login', AuthController.login);
 
 router.post('/logout', User.logout, (req, res) => {
   res.send({ user: res.user });

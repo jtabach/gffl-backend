@@ -4,6 +4,7 @@ const bcrypt = require('bcrypt');
 const helper = require('../helpers');
 const User = require('../models/User');
 
+// Methods are added to object by dot notation for readability
 const AuthController = {};
 
 AuthController.register = (req, res, next) => {
@@ -44,6 +45,35 @@ AuthController.register = (req, res, next) => {
         res.user = savedUser;
         return res.send({ user: res.user });
       });
+    });
+  });
+};
+
+AuthController.login = (req, res, next) => {
+  if (!req.body.email || !req.body.password) {
+    return res
+      .status(400)
+      .send({ user: false, message: 'Missing e-mail or password' });
+  }
+  User.findOne({ email: req.body.email }, (err, foundUser) => {
+    if (err) return res.status(400).send(err);
+    if (!foundUser) {
+      return res
+        .status(400)
+        .send({ user: false, message: 'Email address not found' });
+    }
+    bcrypt.compare(req.body.password, foundUser.password, (err, correct) => {
+      if (err) return res.status(400).send(err);
+      if (!correct) {
+        return res
+          .status(403)
+          .send({ user: false, message: 'Incorrect password' });
+      }
+      const authToken = helper.encodeAuthToken(foundUser);
+
+      res.cookie('authToken', authToken);
+      // TODO: Don't send the user hashed password to the client
+      helper.populateUser(foundUser, res, next);
     });
   });
 };

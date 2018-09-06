@@ -35,8 +35,8 @@ module.exports = {
         }
       })
       .exec((err, userPopulated) => {
-        res.user = userPopulated;
-        next();
+        if (err) return next(err);
+        return res.send({ user: userPopulated });
       });
   },
 
