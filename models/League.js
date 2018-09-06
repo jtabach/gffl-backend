@@ -10,10 +10,10 @@ leagueSchema = new Schema({
   name: { type: String, required: true },
   admin: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'users',
+    ref: 'User',
     required: true
   },
-  teams: [{ type: mongoose.Schema.Types.ObjectId, ref: 'teams' }]
+  teams: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Team' }]
 });
 
 leagueSchema.statics.createLeague = (req, res, next) => {
@@ -34,7 +34,7 @@ leagueSchema.statics.createLeague = (req, res, next) => {
   return newLeague
     .save()
     .then(() => newTeam.save())
-    .then(() => mongoose.model('users').findById(user._id))
+    .then(() => mongoose.model('User').findById(user._id))
     .then(foundUser => {
       foundUser.teams.push(newTeam.id);
       return foundUser.save();
@@ -42,6 +42,6 @@ leagueSchema.statics.createLeague = (req, res, next) => {
     .then(() => helper.populateTeam(newTeam, res, next));
 };
 
-const League = mongoose.model('leagues', leagueSchema);
+const League = mongoose.model('League', leagueSchema);
 
 module.exports = League;

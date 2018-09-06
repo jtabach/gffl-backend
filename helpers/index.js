@@ -25,13 +25,13 @@ module.exports = {
 
   populateUser(user, res, next) {
     mongoose
-      .model('users')
+      .model('User')
       .findById(user._id)
       .populate({
         path: 'teams',
         populate: {
           path: 'league',
-          model: 'leagues'
+          model: 'League'
         }
       })
       .exec((err, userPopulated) => {
@@ -42,7 +42,7 @@ module.exports = {
 
   populateTeam(team, res, next) {
     mongoose
-      .model('teams')
+      .model('Team')
       .findById(team._id)
       .populate({ path: 'league' })
       .exec((err, teamPopulated) => {

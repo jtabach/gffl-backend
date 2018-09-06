@@ -10,7 +10,7 @@ const Team = require('./Team');
 const userSchema = new Schema({
   password: { type: String, required: true },
   email: { type: String, lowercase: true, trim: true, required: true },
-  teams: [{ type: mongoose.Schema.Types.ObjectId, ref: 'teams' }]
+  teams: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Team' }]
 });
 
 userSchema.statics.register = (req, res, next) => {
@@ -107,7 +107,7 @@ userSchema.statics.getTeams = (req, res, next) => {
   let user = helper.decodeAuthToken(authToken);
 
   mongoose
-    .model('teams')
+    .model('Team')
     .find({ user: user._id })
     .populate('league')
     .exec((err, teams) => {
@@ -116,6 +116,6 @@ userSchema.statics.getTeams = (req, res, next) => {
     });
 };
 
-const User = mongoose.model('users', userSchema);
+const User = mongoose.model('User', userSchema);
 
 module.exports = User;
