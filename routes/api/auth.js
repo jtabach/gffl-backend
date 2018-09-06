@@ -18,17 +18,15 @@ router.get('/google/callback', passport.authenticate('google'), (req, res) => {
 
 router.post('/register', AuthController.register);
 router.post('/login', AuthController.login);
-
-router.post('/logout', User.logout, (req, res) => {
-  res.send({ user: res.user });
-});
+router.post('/logout', AuthController.logout);
 
 router.get('/user', User.getUser, (req, res) => {
   res.send({ user: res.user });
 });
 
-router.get('/current_user', (req, res) => {
-  res.send(req.user);
-});
+// For passport google user (deprecated)
+// router.get('/current_user', (req, res) => {
+//   res.send(req.user);
+// });
 
 module.exports = router;

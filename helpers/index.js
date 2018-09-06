@@ -36,7 +36,7 @@ module.exports = {
       })
       .exec((err, userPopulated) => {
         if (err) return next(err);
-        return res.send({ user: userPopulated });
+        return res.status(200).send({ user: userPopulated });
       });
   },
 

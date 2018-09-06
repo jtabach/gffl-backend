@@ -43,7 +43,7 @@ AuthController.register = (req, res, next) => {
         const authToken = helper.encodeAuthToken(savedUser);
         res.cookie('authToken', authToken);
         res.user = savedUser;
-        return res.send({ user: res.user });
+        return res.status(200).send({ user: res.user });
       });
     });
   });
@@ -76,6 +76,11 @@ AuthController.login = (req, res, next) => {
       helper.populateUser(foundUser, res, next);
     });
   });
+};
+
+AuthController.logout = (req, res, next) => {
+  res.clearCookie('authToken');
+  return res.status(200).send({ user: false });
 };
 
 module.exports = AuthController;
