@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const _ = require('lodash');
 
 const helper = require('../helpers');
 
@@ -7,8 +8,38 @@ const User = require('../models/User');
 const League = require('../models/League');
 
 const LeagueController = {
+  getLeague,
   createLeague
 };
+
+function getLeague(req, res, next) {
+  let { authToken } = req.cookies;
+  let user = helper.decodeAuthToken(authToken);
+  let leagueId = req.params.leagueId;
+  if (!user) {
+    // send back some false object
+  }
+  mongoose
+    .model('League')
+    .findById(leagueId)
+    .populate({
+      path: 'teams',
+      populate: {
+        path: 'user',
+        model: 'User'
+      }
+    })
+    .exec((err, league) => {
+      if (err) return next(err);
+      const isPermitted = _.find(league.teams, function(team) {
+        return team.user._id == user._id;
+      });
+      if (!isPermitted) {
+        // send back some false object
+      }
+      return res.status(200).send({ league: league });
+    });
+}
 
 function createLeague(req, res, next) {
   let { authToken } = req.cookies;
