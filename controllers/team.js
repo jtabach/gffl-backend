@@ -7,8 +7,25 @@ const User = require('../models/User');
 const League = require('../models/League');
 
 const TeamController = {
+  getTeam,
   createTeam
 };
+
+function getTeam(req, res, next) {
+  let { authToken } = req.cookies;
+  let user = helper.decodeAuthToken(authToken);
+  let leagueId = req.params.leagueId;
+  if (!user) {
+    // send back some false object
+  }
+  mongoose
+    .model('Team')
+    .findOne({ league: leagueId, user: user._id })
+    .exec((err, team) => {
+      if (err) return next(err);
+      return res.status(200).send({ team: team });
+    });
+}
 
 function createTeam(req, res, next) {
   let { authToken } = req.cookies;
