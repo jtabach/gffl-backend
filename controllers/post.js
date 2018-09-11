@@ -29,6 +29,7 @@ function createPost(req, res, next) {
 
       newPost.save((err, savedPost) => {
         if (err) return res.status(400).send(err);
+
         savedPost.populate('team', err => {
           return res.status(200).send({ post: savedPost });
         });
