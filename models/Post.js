@@ -13,14 +13,14 @@ postSchema = new Schema({
     required: true
   },
   text: { type: String, required: true },
-  date: { type: Date, default: Date.now() }
-  // comments: [
-  //   {
-  //     type: mongoose.Schema.Types.ObjectId,
-  //     ref: 'Comment',
-  //     required: true
-  //   }
-  // ],
+  date: { type: Date, default: Date.now() },
+  comments: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Comment',
+      required: true
+    }
+  ]
   // likes: [
   //   {
   //     type: mongoose.Schema.Types.ObjectId,
