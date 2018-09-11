@@ -32,18 +32,20 @@ function getLeague(req, res, next) {
       },
       {
         path: 'posts',
-        populate: {
-          path: 'team',
-          model: 'Team'
-        },
-        populate: {
-          path: 'comments',
-          model: 'Comment',
-          populate: {
+        populate: [
+          {
             path: 'team',
             model: 'Team'
+          },
+          {
+            path: 'comments',
+            model: 'Comment',
+            populate: {
+              path: 'team',
+              model: 'Team'
+            }
           }
-        }
+        ]
       }
     ])
     .exec((err, league) => {
