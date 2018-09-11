@@ -5,5 +5,6 @@ router.use('/auth', require('./auth'));
 router.use('/league', require('./league'));
 router.use('/team', require('./team'));
 router.use('/user', require('./user'));
+router.use('/post', require('./post'));
 
 module.exports = router;

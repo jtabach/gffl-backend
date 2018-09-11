@@ -12,7 +12,7 @@ postSchema = new Schema({
     ref: 'League',
     required: true
   },
-  description: { type: String, required: true },
+  text: { type: String, required: true },
   date: { type: Date, default: Date.now() }
   // comments: [
   //   {

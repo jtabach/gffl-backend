@@ -22,13 +22,22 @@ function getLeague(req, res, next) {
   mongoose
     .model('League')
     .findById(leagueId)
-    .populate({
-      path: 'teams',
-      populate: {
-        path: 'user',
-        model: 'User'
+    .populate([
+      {
+        path: 'teams',
+        populate: {
+          path: 'user',
+          model: 'User'
+        }
+      },
+      {
+        path: 'posts',
+        populate: {
+          path: 'team',
+          model: 'Team'
+        }
       }
-    })
+    ])
     .exec((err, league) => {
       if (err) return next(err);
       const isPermitted = _.find(league.teams, function(team) {
