@@ -32,10 +32,10 @@ function createComment(req, res, next) {
       newComment.save((err, savedComment) => {
         if (err) return res.status(400).send(err);
 
-        savedComment.populate('team', err => {
+        savedComment.populate('team', (err, populatedComment) => {
           if (err) return res.status(400).send(err);
 
-          return res.status(200).send({ comment: savedComment });
+          return res.status(200).send({ comment: populatedComment });
         });
       });
     });
