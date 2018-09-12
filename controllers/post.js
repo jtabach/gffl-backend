@@ -64,9 +64,25 @@ function editPost(req, res, next) {
     foundPost.save((err, savedPost) => {
       if (err) return res.status(400).send(err);
 
-      savedPost.populate('team', (err, populatedPost) => {
-        return res.status(200).send({ post: populatedPost });
-      });
+      savedPost.populate(
+        [
+          {
+            path: 'team',
+            model: 'Team'
+          },
+          {
+            path: 'comments',
+            model: 'Comment',
+            populate: {
+              path: 'team',
+              model: 'Team'
+            }
+          }
+        ],
+        (err, populatedPost) => {
+          return res.status(200).send({ post: populatedPost });
+        }
+      );
     });
   });
 }
