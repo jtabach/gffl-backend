@@ -61,10 +61,12 @@ function editPost(req, res, next) {
     if (err) return res.status(400).send(err);
 
     foundPost.text = post.text;
-    foundPost.save((err, savePost) => {
+    foundPost.save((err, savedPost) => {
       if (err) return res.status(400).send(err);
 
-      return res.status(200).send({ post: savePost });
+      savedPost.populate('team', (err, populatedPost) => {
+        return res.status(200).send({ post: populatedPost });
+      });
     });
   });
 }
