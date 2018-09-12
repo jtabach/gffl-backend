@@ -8,7 +8,8 @@ const League = require('../models/League');
 const Post = require('../models/Post');
 
 const PostController = {
-  createPost
+  createPost,
+  deletePost
 };
 
 function createPost(req, res, next) {
@@ -34,6 +35,20 @@ function createPost(req, res, next) {
           return res.status(200).send({ post: populatedPost });
         });
       });
+    });
+  });
+}
+
+function deletePost(req, res, next) {
+  const post = req.body;
+
+  mongoose.model('Comment').deleteMany({ _id: post.comments }, err => {
+    if (err) return res.status(400).send(err);
+
+    mongoose.model('Post').findByIdAndRemove(post._id, (err, deletedPost) => {
+      if (err) return res.status(400).send(err);
+
+      return res.status(200).send({ post: deletedPost });
     });
   });
 }
