@@ -9,7 +9,8 @@ const Post = require('../models/Post');
 
 const PostController = {
   createPost,
-  deletePost
+  deletePost,
+  editPost
 };
 
 function createPost(req, res, next) {
@@ -49,6 +50,21 @@ function deletePost(req, res, next) {
       if (err) return res.status(400).send(err);
 
       return res.status(200).send({ post: deletedPost });
+    });
+  });
+}
+
+function editPost(req, res, next) {
+  const post = req.body;
+
+  mongoose.model('Post').findById(post._id, (err, foundPost) => {
+    if (err) return res.status(400).send(err);
+
+    foundPost.text = post.text;
+    foundPost.save((err, savePost) => {
+      if (err) return res.status(400).send(err);
+
+      return res.status(200).send({ post: savePost });
     });
   });
 }
