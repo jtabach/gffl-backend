@@ -10,7 +10,8 @@ const Comment = require('../models/Comment');
 const Like = require('../models/Like');
 
 const LikeController = {
-  likePost
+  likePost,
+  deleteLikePost
 };
 
 function likePost(req, res, next) {
@@ -37,6 +38,27 @@ function likePost(req, res, next) {
 
           return res.status(200).send({ like: populateLike });
         });
+      });
+    });
+  });
+}
+
+function deleteLikePost(req, res, next) {
+  const like = req.body;
+
+  mongoose.model('Post').findById(like.postId, (err, foundPost) => {
+    if (err) return res.status(400).send(err);
+
+    foundPost.likes = foundPost.likes.filter(likeInPost => {
+      return likeInPost != like._id;
+    });
+    foundPost.save(err => {
+      if (err) return res.status(400).send(err);
+
+      mongoose.model('Like').findByIdAndRemove(like._id, (err, deletedLike) => {
+        if (err) return res.status(400).send(err);
+
+        return res.status(200).send({ like: deletedLike });
       });
     });
   });
