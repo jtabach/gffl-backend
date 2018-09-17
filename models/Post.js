@@ -20,14 +20,14 @@ postSchema = new Schema({
       ref: 'Comment',
       required: true
     }
+  ],
+  likes: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Like',
+      required: true
+    }
   ]
-  // likes: [
-  //   {
-  //     type: mongoose.Schema.Types.ObjectId,
-  //     ref: 'Like',
-  //     required: true
-  //   }
-  // ],
   // mentions: [
   //   {
   //     type: mongoose.Schema.Types.ObjectId,
