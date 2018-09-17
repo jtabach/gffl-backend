@@ -81,6 +81,14 @@ function editPost(req, res, next) {
               path: 'team',
               model: 'Team'
             }
+          },
+          {
+            path: 'likes',
+            model: 'Like',
+            populate: {
+              path: 'team',
+              model: 'Team'
+            }
           }
         ],
         (err, populatedPost) => {
