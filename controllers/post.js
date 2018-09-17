@@ -46,10 +46,14 @@ function deletePost(req, res, next) {
   mongoose.model('Comment').deleteMany({ _id: post.comments }, err => {
     if (err) return res.status(400).send(err);
 
-    mongoose.model('Post').findByIdAndRemove(post._id, (err, deletedPost) => {
+    mongoose.model('Like').deleteMany({ _id: post.likes }, err => {
       if (err) return res.status(400).send(err);
 
-      return res.status(200).send({ post: deletedPost });
+      mongoose.model('Post').findByIdAndRemove(post._id, (err, deletedPost) => {
+        if (err) return res.status(400).send(err);
+
+        return res.status(200).send({ post: deletedPost });
+      });
     });
   });
 }
