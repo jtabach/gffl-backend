@@ -27,13 +27,29 @@ module.exports = {
     mongoose
       .model('User')
       .findById(user._id)
-      .populate({
-        path: 'teams',
-        populate: {
-          path: 'league',
-          model: 'League'
+      .populate([
+        {
+          path: 'teams',
+          populate: {
+            path: 'league',
+            model: 'League'
+          }
+        },
+        {
+          path: 'notifications',
+          model: 'Notification',
+          populate: [
+            {
+              path: 'actor',
+              model: 'User'
+            },
+            {
+              path: 'league',
+              model: 'League'
+            }
+          ]
         }
-      })
+      ])
       .exec((err, userPopulated) => {
         if (err) return next(err);
         return res.status(200).send({ user: userPopulated });
