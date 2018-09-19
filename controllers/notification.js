@@ -27,6 +27,8 @@ function createNotification(req, res, next) {
     foundLeague.populate('teams', (err, populatedLeague) => {
       if (err) return res.status(400).send(err);
 
+      var completed = []; // TODO: fix temporary resolver for looping through async actions
+
       populatedLeague.teams.forEach(team => {
         mongoose.model('User').findById(team.user, (err, foundUser) => {
           if (err) return res.status(400).send(err);
@@ -46,8 +48,13 @@ function createNotification(req, res, next) {
           foundUser.notifications.push(newNotification);
           foundUser.save(err => {
             if (err) return res.status(400).send(err);
-
-            newNotification.save();
+            newNotification.save(err => {
+              if (err) return res.status(400).send(err);
+              completed.push('done'); // TODO: fix temporary resolver for looping through async actions
+              if (completed.length == populatedLeague.teams.length) {
+                return res.status(200).send({ success: true });
+              }
+            });
           });
         });
       });
