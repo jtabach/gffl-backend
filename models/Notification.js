@@ -18,19 +18,19 @@ notificationSchema = new Schema({
     required: true
   },
   verb: {
-    type: mongoose.Schema.Types.string,
+    type: String,
     required: true
   },
   actingOn: {
-    type: mongoose.Schema.Types.string,
+    type: String,
     required: true
   },
   hasViewed: {
-    type: mongoose.Schema.Types.boolean,
+    type: Boolean,
     required: true
   },
   hasDismissed: {
-    type: mongoose.Schema.Types.boolean,
+    type: Boolean,
     required: true
   },
   date: { type: Date, default: Date.now() }
