@@ -11,8 +11,44 @@ const Like = require('../models/Like');
 const Notification = require('../models/Notification');
 
 const NotificationController = {
+  getNotifications,
   createNotification
 };
+
+function getNotifications(req, res, next) {
+  let { authToken } = req.cookies;
+  let user = helper.decodeAuthToken(authToken);
+
+  mongoose.model('User').findById(user._id, (err, foundUser) => {
+    if (err) return res.status(400).send(err);
+
+    foundUser.populate(
+      [
+        {
+          path: 'notifications',
+          model: 'Notification',
+          populate: [
+            {
+              path: 'actor',
+              model: 'User'
+            },
+            {
+              path: 'league',
+              model: 'League'
+            }
+          ]
+        }
+      ],
+      (err, populatedUser) => {
+        if (err) return res.status(400).send(err);
+
+        return res
+          .status(200)
+          .send({ notifications: populatedUser.notifications || [] });
+      }
+    );
+  });
+}
 
 function createNotification(req, res, next) {
   let { authToken } = req.cookies;
@@ -48,8 +84,10 @@ function createNotification(req, res, next) {
           foundUser.notifications.push(newNotification);
           foundUser.save(err => {
             if (err) return res.status(400).send(err);
+
             newNotification.save(err => {
               if (err) return res.status(400).send(err);
+
               completed.push('done'); // TODO: fix temporary resolver for looping through async actions
               if (completed.length == populatedLeague.teams.length) {
                 return res.status(200).send({ success: true });
