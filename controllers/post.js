@@ -52,7 +52,19 @@ function deletePost(req, res, next) {
       mongoose.model('Post').findByIdAndRemove(post._id, (err, deletedPost) => {
         if (err) return res.status(400).send(err);
 
-        return res.status(200).send({ post: deletedPost });
+        mongoose.model('League').findById(post.league, (err, foundLeague) => {
+          if (err) return res.status(400).send(err);
+
+          foundLeague.posts = foundLeague.posts.filter(leaguePost => {
+            return post._id != leaguePost._id;
+          });
+
+          foundLeague.save(err => {
+            if (err) return res.status(400).send(err);
+
+            return res.status(200).send({ post: deletedPost });
+          });
+        });
       });
     });
   });
