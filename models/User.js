@@ -5,7 +5,8 @@ const helper = require('../helpers');
 const userSchema = new Schema({
   password: { type: String, required: true },
   email: { type: String, lowercase: true, trim: true, required: true },
-  teams: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Team' }]
+  teams: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Team' }],
+  notifications: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Notification' }]
 });
 
 const User = mongoose.model('User', userSchema);
