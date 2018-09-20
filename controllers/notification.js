@@ -12,7 +12,8 @@ const Notification = require('../models/Notification');
 
 const NotificationController = {
   getNotifications,
-  createNotification
+  createNotification,
+  viewNotification
 };
 
 function getNotifications(req, res, next) {
@@ -98,6 +99,23 @@ function createNotification(req, res, next) {
       });
     });
   });
+}
+
+function viewNotification(req, res, next) {
+  const notification = req.body;
+
+  mongoose
+    .model('Notification')
+    .findById(notification._id, (err, foundNotification) => {
+      if (err) return res.status(400).send(err);
+
+      foundNotification.hasViewed = true;
+      foundNotification.save((err, savedNotification) => {
+        if (err) return res.status(400).send(err);
+
+        res.status(200).send({ notification: savedNotification });
+      });
+    });
 }
 
 module.exports = NotificationController;
