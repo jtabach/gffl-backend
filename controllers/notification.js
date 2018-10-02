@@ -14,6 +14,7 @@ const NotificationController = {
   getNotifications,
   createNotification,
   viewNotification,
+  viewAllNotifications,
   dismissNotifications
 };
 
@@ -117,6 +118,29 @@ function viewNotification(req, res, next) {
         res.status(200).send({ notification: savedNotification });
       });
     });
+}
+
+// TODO: DRY shares logic with dismissNotifications
+function viewAllNotifications(req, res, next) {
+  const notifications = req.body;
+  var savedNotifications = []; // TODO: fix temporary resolver for looping through async actions
+
+  notifications.forEach(notification => {
+    mongoose
+      .model('Notification')
+      .findById(notification._id, (err, foundNotification) => {
+        if (err) return res.status(400).send(err);
+
+        foundNotification.hasViewed = true;
+        foundNotification.save((err, savedNotification) => {
+          savedNotifications.push(savedNotification); // TODO: fix temporary resolver for looping through async actions
+
+          if (savedNotifications.length == notifications.length) {
+            return res.status(200).send({ notifications: savedNotifications });
+          }
+        });
+      });
+  });
 }
 
 function dismissNotifications(req, res, next) {
