@@ -9,5 +9,6 @@ router.use('/post', require('./post'));
 router.use('/comment', require('./comment'));
 router.use('/like', require('./like'));
 router.use('/notification', require('./notification'));
+router.use('/subscription', require('./subscription'));
 
 module.exports = router;
