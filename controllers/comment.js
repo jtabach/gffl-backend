@@ -12,7 +12,7 @@ const CommentController = {
   createComment
 };
 
-function createComment(req, res, next) {
+async function createComment(req, res, next) {
   const { text, leagueId, teamId, postId } = req.body;
 
   const newComment = new Comment();
@@ -22,24 +22,21 @@ function createComment(req, res, next) {
   newComment.team = teamId;
   newComment.post = postId;
 
-  mongoose.model('Post').findById(postId, (err, post) => {
-    if (err) return res.status(400).send(err);
-
+  try {
+    const post = await mongoose.model('Post').findById(postId);
     post.comments.push(newComment);
-    post.save((err, savedPost) => {
-      if (err) return res.status(400).send(err);
 
-      newComment.save((err, savedComment) => {
-        if (err) return res.status(400).send(err);
-
-        savedComment.populate('team', (err, populatedComment) => {
-          if (err) return res.status(400).send(err);
-
-          return res.status(200).send({ comment: populatedComment });
-        });
-      });
+    await post.save();
+    const savedComment = await newComment.save();
+    const populatedComment = await mongoose.model('Post').populate(savedComment, {
+      path: 'team',
+      model: 'Team'
     });
-  });
+
+    return res.status(200).send({ comment: populatedComment });
+  } catch (err) {
+    return res.status(400).send(err);
+  }
 }
 
 module.exports = CommentController;
