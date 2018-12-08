@@ -38,34 +38,24 @@ async function createPost(req, res, next) {
   }
 }
 
-function deletePost(req, res, next) {
+async function deletePost(req, res, next) {
   const post = req.body;
 
-  mongoose.model('Comment').deleteMany({ _id: post.comments }, err => {
-    if (err) return res.status(400).send(err);
+  try {
+    await mongoose.model('Comment').deleteMany({ _id: post.comments });
+    await mongoose.model('Like').deleteMany({ _id: post.likes });
+    const deletedPost = await mongoose.model('Post').findByIdAndRemove(post._id);
+    const foundLeague = await mongoose.model('League').findById(post.league);
 
-    mongoose.model('Like').deleteMany({ _id: post.likes }, err => {
-      if (err) return res.status(400).send(err);
-
-      mongoose.model('Post').findByIdAndRemove(post._id, (err, deletedPost) => {
-        if (err) return res.status(400).send(err);
-
-        mongoose.model('League').findById(post.league, (err, foundLeague) => {
-          if (err) return res.status(400).send(err);
-
-          foundLeague.posts = foundLeague.posts.filter(leaguePost => {
-            return post._id != leaguePost._id;
-          });
-
-          foundLeague.save(err => {
-            if (err) return res.status(400).send(err);
-
-            return res.status(200).send({ post: deletedPost });
-          });
-        });
-      });
+    foundLeague.posts = foundLeague.posts.filter(leaguePost => {
+      return post._id != leaguePost._id;
     });
-  });
+
+    await foundLeague.save();
+    return res.status(200).send({ post: deletedPost });
+  } catch (err) {
+    return res.status(400).send(err);
+  }
 }
 
 function editPost(req, res, next) {
