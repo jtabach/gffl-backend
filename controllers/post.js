@@ -13,7 +13,7 @@ const PostController = {
   editPost
 };
 
-function createPost(req, res, next) {
+async function createPost(req, res, next) {
   const { text, leagueId, teamId } = req.body;
 
   const newPost = new Post();
@@ -22,22 +22,20 @@ function createPost(req, res, next) {
   newPost.league = leagueId;
   newPost.team = teamId;
 
-  mongoose.model('League').findById(leagueId, (err, league) => {
-    if (err) return res.status(400).send(err);
-
+  try {
+    const league = await mongoose.model('League').findById(leagueId);
     league.posts.push(newPost._id);
-    league.save((err, savedLeague) => {
-      if (err) return res.status(400).send(err);
 
-      newPost.save((err, savedPost) => {
-        if (err) return res.status(400).send(err);
-
-        savedPost.populate('team', (err, populatedPost) => {
-          return res.status(200).send({ post: populatedPost });
-        });
-      });
+    const savedLeague = await league.save();
+    const savedPost = await newPost.save();
+    const populatedPost = await mongoose.model('Post').populate(savedPost, {
+      path: 'team',
+      model: 'Team'
     });
-  });
+    return res.status(200).send({ post: populatedPost });
+  } catch (err) {
+    return res.status(400).send(err);
+  }
 }
 
 function deletePost(req, res, next) {
