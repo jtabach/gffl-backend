@@ -14,6 +14,8 @@ require('./services/passport');
 mongoose.connect(keys.mongoURI, { useNewUrlParser: true });
 
 const app = express();
+const server = require('http').Server(app);
+const io = require('socket.io')(server);
 
 require('./services/cors')(app);
 require('./services/cookieSession')(app);
@@ -30,8 +32,7 @@ app.get('/*', (req, res, next) => {
   res.send('worker demo2');
 });
 
-// TODO: should be moved to a separate server that is not affected by user actions
-newsService.init();
+newsService.init(io);
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT);
+server.listen(PORT);
