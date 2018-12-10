@@ -35,15 +35,7 @@ app.get('/*', (req, res, next) => {
 // server.listen(80);
 
 // TODO: should be moved to a separate server that is not affected by user actions
-newsService.init();
+newsService.init(io);
 
 const PORT = process.env.PORT || 5000;
 server.listen(PORT);
-
-io.on('connection', function (socket) {
-  socket.emit('news', 'connected to player news');
-
-  socket.on('disconnect', function () {
-    console.log('ok disconnecting');
-  });
-});
