@@ -5,6 +5,7 @@ const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 
 const keys = require('./config/keys');
+const newsService = require('./service/newsService');
 
 require('./models/GoogleUser');
 require('./models/User');
@@ -28,6 +29,9 @@ app.use('/api', require('./routes/api'));
 app.get('/*', (req, res, next) => {
   res.send('worker demo2');
 });
+
+// TODO: should be moved to a separate server that is not affected by user actions
+newsService.init();
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT);
