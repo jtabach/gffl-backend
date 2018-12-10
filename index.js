@@ -32,9 +32,6 @@ app.get('/*', (req, res, next) => {
   res.send('worker demo2');
 });
 
-// server.listen(80);
-
-// TODO: should be moved to a separate server that is not affected by user actions
 newsService.init(io);
 
 const PORT = process.env.PORT || 5000;
