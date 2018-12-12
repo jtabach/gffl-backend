@@ -41,33 +41,35 @@ async function register(req, res, next) {
   }
 }
 
-function login(req, res, next) {
+async function login(req, res, next) {
   if (!req.body.email || !req.body.password) {
     return res
       .status(400)
       .send({ user: false, message: 'Missing e-mail or password' });
   }
-  User.findOne({ email: req.body.email }, (err, foundUser) => {
-    if (err) return res.status(400).send(err);
-    if (!foundUser) {
-      return res
-        .status(400)
-        .send({ user: false, message: 'Email address not found' });
-    }
-    bcrypt.compare(req.body.password, foundUser.password, (err, correct) => {
-      if (err) return res.status(400).send(err);
-      if (!correct) {
-        return res
-          .status(403)
-          .send({ user: false, message: 'Incorrect password' });
-      }
-      const authToken = helper.encodeAuthToken(foundUser);
+  var foundUser;
 
-      res.cookie('authToken', authToken);
-      // TODO: Don't send the user hashed password to the client
-      helper.populateUser(foundUser, res, next);
-    });
-  });
+  try {
+    foundUser = await User.findOne({ email: req.body.email });
+  } catch {
+    return res
+      .status(400)
+      .send({ user: false, message: 'Incorrect email or password' });
+  }
+
+  try {
+    await bcrypt.compare(req.body.password, foundUser.password);
+  } catch {
+    return res
+      .status(400)
+      .send({ user: false, message: 'Incorrect email or password' });
+  }
+
+  const authToken = helper.encodeAuthToken(foundUser);
+  res.cookie('authToken', authToken);
+
+  const populatedUser = await helper.populateUser(foundUser);
+  res.status(200).send({ user: populatedUser });
 }
 
 function logout(req, res, next) {
