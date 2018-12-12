@@ -48,20 +48,21 @@ async function createNotification(req, res, next) {
       const foundUser = await mongoose.model('User').findById(team.user);
 
       // TODO: check if user preferences for recieving notification
-      // TODO: check if user is also the actor
-      const newNotification = new Notification();
+      if (actor != team.user) {
+        const newNotification = new Notification();
 
-      newNotification.user = foundUser._id;
-      newNotification.verb = verb;
-      newNotification.actor = actor;
-      newNotification.league = leagueId;
-      newNotification.actingOn = actingOn;
-      newNotification.hasViewed = false;
-      newNotification.hasDismissed = false;
+        newNotification.user = foundUser._id;
+        newNotification.verb = verb;
+        newNotification.actor = actor;
+        newNotification.league = leagueId;
+        newNotification.actingOn = actingOn;
+        newNotification.hasViewed = false;
+        newNotification.hasDismissed = false;
 
-      foundUser.notifications.push(newNotification);
-      await foundUser.save();
-      await newNotification.save();
+        foundUser.notifications.push(newNotification);
+        await foundUser.save();
+        await newNotification.save();
+      }
     });
 
     return res.status(200).send({ success: true });
