@@ -14,7 +14,7 @@ const LikeController = {
   deleteLikePost
 };
 
-function likePost(req, res, next) {
+async function likePost(req, res, next) {
   const { leagueId, teamId, postId } = req.body;
 
   const newLike = new Like();
@@ -23,24 +23,18 @@ function likePost(req, res, next) {
   newLike.team = teamId;
   newLike.post = postId;
 
-  mongoose.model('Post').findById(postId, (err, foundPost) => {
-    if (err) return res.status(400).send(err);
-
+  try {
+    const foundPost = await mongoose.model('Post').findById(postId);
     foundPost.likes.push(newLike);
-    foundPost.save(err => {
-      if (err) return res.status(400).send(err);
+    await foundPost.save();
 
-      newLike.save((err, savedLike) => {
-        if (err) return res.status(400).send(err);
+    const savedLike = await newLike.save();
+    const populatedLike = await mongoose.model('Like').findById(savedLike._id).populate({ path: 'team' });
 
-        savedLike.populate('team', (err, populateLike) => {
-          if (err) return res.status(400).send(err);
-
-          return res.status(200).send({ like: populateLike });
-        });
-      });
-    });
-  });
+    return res.status(200).send({ like: populatedLike });
+  } catch (err) {
+    return res.status(400).send(err);
+  }
 }
 
 async function deleteLikePost(req, res, next) {
@@ -52,10 +46,12 @@ async function deleteLikePost(req, res, next) {
       return likeInPost != like._id;
     });
     await foundPost.save();
+
     const deletedLike = await mongoose.model('Like').findByIdAndRemove(like._id);
+
     return res.status(200).send({ like: deletedLike });
   } catch (err) {
-    res.status(400).send(err);
+    return res.status(400).send(err);
   }
 }
 
