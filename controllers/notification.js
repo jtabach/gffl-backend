@@ -18,39 +18,20 @@ const NotificationController = {
   dismissNotifications
 };
 
-function getNotifications(req, res, next) {
+async function getNotifications(req, res, next) {
   let { authToken } = req.cookies;
   let user = helper.decodeAuthToken(authToken);
 
-  mongoose.model('User').findById(user._id, (err, foundUser) => {
-    if (err) return res.status(400).send(err);
+  try {
+    const foundUser = await mongoose.model('User').findById(user._id);
+    const populatedUser = await helper.populateUserWithNotifications(foundUser);
 
-    foundUser.populate(
-      [
-        {
-          path: 'notifications',
-          model: 'Notification',
-          populate: [
-            {
-              path: 'actor',
-              model: 'User'
-            },
-            {
-              path: 'league',
-              model: 'League'
-            }
-          ]
-        }
-      ],
-      (err, populatedUser) => {
-        if (err) return res.status(400).send(err);
-
-        return res
-          .status(200)
-          .send({ notifications: populatedUser.notifications || [] });
-      }
-    );
-  });
+    return res
+      .status(200)
+      .send({ notifications: populatedUser.notifications || [] });
+  } catch (err) {
+    return res.status(400).send(err);
+  }
 }
 
 function createNotification(req, res, next) {

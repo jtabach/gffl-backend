@@ -53,6 +53,26 @@ module.exports = {
       ]);
   },
 
+  async populateUserWithNotifications(user) {
+    return mongoose.model('User').findById(user._id)
+      .populate([
+        {
+          path: 'notifications',
+          model: 'Notification',
+          populate: [
+            {
+              path: 'actor',
+              model: 'User'
+            },
+            {
+              path: 'league',
+              model: 'League'
+            }
+          ]
+        }
+      ]);
+  },
+
   async populateLeague(league) {
     return League.findById(league._id)
     .populate([
