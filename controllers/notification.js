@@ -103,12 +103,7 @@ async function viewAllNotifications(req, res, next) {
   const notifications = req.body;
 
   try {
-    const savedNotifications = notifications.map(async notification => {
-      const foundNotification = await mongoose.model('Notification').findById(notification._id);
-      foundNotification.hasViewed = true;
-      const savedNotification = await foundNotification.save();
-      return savedNotification;
-    })
+    const savedNotifications = await _changeAllNotificationsFlag(notifications, 'hasViewed');
 
     return res.status(200).send({ notifications: savedNotifications });
   } catch (err) {
@@ -116,25 +111,24 @@ async function viewAllNotifications(req, res, next) {
   }
 }
 
-function dismissNotifications(req, res, next) {
+async function dismissNotifications(req, res, next) {
   const notifications = req.body;
-  var savedNotifications = []; // TODO: fix temporary resolver for looping through async actions
 
-  notifications.forEach(notification => {
-    mongoose
-      .model('Notification')
-      .findById(notification._id, (err, foundNotification) => {
-        if (err) return res.status(400).send(err);
+  try {
+    const savedNotifications = await _changeAllNotificationsFlag(notifications, 'hasDismissed');
 
-        foundNotification.hasDismissed = true;
-        foundNotification.save((err, savedNotification) => {
-          savedNotifications.push(savedNotification); // TODO: fix temporary resolver for looping through async actions
+    return res.status(200).send({ notifications: savedNotifications });
+  } catch (err) {
+    return res.status(400).send(err);
+  }
+}
 
-          if (savedNotifications.length == notifications.length) {
-            return res.status(200).send({ notifications: savedNotifications });
-          }
-        });
-      });
+async function _changeAllNotificationsFlag(notifications, property) {
+  return notifications.map(async notification => {
+    const foundNotification = await mongoose.model('Notification').findById(notification._id);
+    foundNotification[property] = true;
+    const savedNotification = await foundNotification.save();
+    return savedNotification;
   });
 }
 
