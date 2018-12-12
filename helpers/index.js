@@ -56,13 +56,8 @@ module.exports = {
       });
   },
 
-  populateTeam(team, res, next) {
-    mongoose
-      .model('Team')
-      .findById(team._id)
-      .populate({ path: 'league' })
-      .exec((err, teamPopulated) => {
-        return res.status(200).send({ team: teamPopulated });
-      });
+  async populateTeam(team) {
+    return mongoose.model('Team').findById(team._id)
+      .populate({ path: 'league' });
   }
 };

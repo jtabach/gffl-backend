@@ -27,7 +27,7 @@ function getTeam(req, res, next) {
     });
 }
 
-function createTeam(req, res, next) {
+async function createTeam(req, res, next) {
   let { authToken } = req.cookies;
   let user = helper.decodeAuthToken(authToken);
 
@@ -37,50 +37,42 @@ function createTeam(req, res, next) {
   newTeam.league = req.body.leagueId;
   newTeam.user = user._id;
 
-  mongoose
-    .model('League')
-    .findById(newTeam.league, (err, foundLeague) => {
-      // if (err) return res.status(400).send(err);
+  var foundLeague;
 
-      return Team.findOne({ user: newTeam.user, league: newTeam.league });
-    })
-    .then(foundTeam => {
-      // if (err) return res.status(400).send(err);
+  try {
+    foundLeague = await mongoose.model('League').findById(newTeam.league);
+  } catch {
+    return res.status(400).send({ message: 'LeagueId does not exist' });
+  }
+  console.log('step 1');
+  try {
+    await Team.findOne({ user: newTeam.user, league: newTeam.league });
+  } catch {
+    return res.status(400).send({ message: 'You already have a team in this league' })
+  }
+  console.log('step 2');
 
-      // if (foundTeam) {
-      //   res.status(400).send({
-      //     verify: false,
-      //     message: 'You already have a team in this league'
-      //   });
-      //   return next();
-      // }
-      // return out of request with error
-      return mongoose
-        .model('Team')
-        .findOne({ name: newTeam.name, league: newTeam.league });
-    })
-    .then(foundTeam => {
-      // if (err) return res.status(400).send(err);
+  try {
+    await mongoose.model('Team').findOne({ name: newTeam.name, league: newTeam.league });
+  } catch {
+    return res.status(400).send({ message: 'This team name has already been taken in this league' })
+  }
+  console.log('step 3');
 
-      // if (foundTeam)
-      // return res.status(400).send({
-      //   verify: false,
-      //   message: 'This team name has already been taken in this league'
-      // });
+  try {
+    await newTeam.save();
+    foundLeague.teams.push(newTeam._id);
+    await foundLeague.save();
+    const foundUser = await mongoose.model('User').findById(newTeam.user);
+    foundUser.teams.push(newTeam._id);
+    await foundUser.save();
+    const populatedTeam = await helper.populateTeam(newTeam);
+    res.status(200).send({})
+  } catch (err) {
+    return res.status(400).send({ team: populatedTeam });
+  }
 
-      return newTeam.save();
-    })
-    .then(() => mongoose.model('League').findById(newTeam.league))
-    .then(foundLeague => {
-      foundLeague.teams.push(newTeam._id);
-      return foundLeague.save();
-    })
-    .then(() => mongoose.model('User').findById(newTeam.user))
-    .then(foundUser => {
-      foundUser.teams.push(newTeam._id);
-      return foundUser.save();
-    })
-    .then(() => helper.populateTeam(newTeam, res, next));
+    // .then(() => helper.populateTeam(newTeam, res, next));
 }
 
 module.exports = TeamController;
