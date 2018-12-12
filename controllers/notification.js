@@ -84,21 +84,18 @@ function createNotification(req, res, next) {
   });
 }
 
-function viewNotification(req, res, next) {
+async function viewNotification(req, res, next) {
   const notification = req.body;
 
-  mongoose
-    .model('Notification')
-    .findById(notification._id, (err, foundNotification) => {
-      if (err) return res.status(400).send(err);
+  try {
+    const foundNotification = await mongoose.model('Notification').findById(notification._id)
+    foundNotification.hasViewed = true;
+    const savedNotification = await foundNotification.save();
 
-      foundNotification.hasViewed = true;
-      foundNotification.save((err, savedNotification) => {
-        if (err) return res.status(400).send(err);
-
-        res.status(200).send({ notification: savedNotification });
-      });
-    });
+    return res.status(200).send({ notification: savedNotification });
+  } catch (err) {
+    return res.status(400).send(err);
+  }
 }
 
 // TODO: DRY shares logic with dismissNotifications
