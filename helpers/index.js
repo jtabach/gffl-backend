@@ -26,10 +26,8 @@ module.exports = {
     }
   },
 
-  populateUser(user, res, next) {
-    mongoose
-      .model('User')
-      .findById(user._id)
+  async populateUser(user) {
+    return mongoose.model('User').findById(user._id)
       .populate([
         {
           path: 'teams',
@@ -52,11 +50,7 @@ module.exports = {
             }
           ]
         }
-      ])
-      .exec((err, userPopulated) => {
-        if (err) return next(err);
-        return res.status(200).send({ user: userPopulated });
-      });
+      ]);
   },
 
   async populateLeague(league) {

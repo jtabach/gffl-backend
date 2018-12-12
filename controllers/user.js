@@ -11,13 +11,14 @@ const UserController = {
   getTeams
 };
 
-function getUser(req, res, next) {
+async function getUser(req, res, next) {
   const { authToken } = req.cookies;
   const user = helper.decodeAuthToken(authToken);
   if (!user) {
     return res.status(400).send({ user: user });
   } else {
-    helper.populateUser(user, res, next);
+    const populatedUser = await helper.populateUser(user);
+    return res.status(200).send({ user: populatedUser });
   }
 }
 
