@@ -68,7 +68,7 @@ function getLeague(req, res, next) {
     });
 }
 
-function createLeague(req, res, next) {
+async function createLeague(req, res, next) {
   let { authToken } = req.cookies;
   let user = helper.decodeAuthToken(authToken);
 
@@ -83,15 +83,19 @@ function createLeague(req, res, next) {
   newTeam.user = user._id;
   newTeam.league = newLeague.id;
 
-  return newLeague
-    .save()
-    .then(() => newTeam.save())
-    .then(() => mongoose.model('User').findById(user._id))
-    .then(foundUser => {
-      foundUser.teams.push(newTeam.id);
-      return foundUser.save();
-    })
-    .then(() => helper.populateTeam(newTeam, res, next));
+  try {
+    await newLeague.save();
+    await newTeam.save();
+
+    const foundUser = await User.findById(user._id);
+    foundUser.teams.push(newTeam.id);
+    await foundUser.save();
+
+    const populatedTeam = await helper.populateTeam(newTeam);
+    return res.status(200).send({ team: populatedTeam })
+  } catch (err) {
+    return res.status(400).send(err);
+  }
 }
 
 module.exports = LeagueController;
