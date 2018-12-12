@@ -12,60 +12,25 @@ const LeagueController = {
   createLeague
 };
 
-function getLeague(req, res, next) {
+async function getLeague(req, res, next) {
   let { authToken } = req.cookies;
   let user = helper.decodeAuthToken(authToken);
   let leagueId = req.params.leagueId;
   if (!user) {
     // send back some false object
   }
-  mongoose
-    .model('League')
-    .findById(leagueId)
-    .populate([
-      {
-        path: 'teams',
-        populate: {
-          path: 'user',
-          model: 'User'
-        }
-      },
-      {
-        path: 'posts',
-        populate: [
-          {
-            path: 'team',
-            model: 'Team'
-          },
-          {
-            path: 'comments',
-            model: 'Comment',
-            populate: {
-              path: 'team',
-              model: 'Team'
-            }
-          },
-          {
-            path: 'likes',
-            model: 'Like',
-            populate: {
-              path: 'team',
-              model: 'Team'
-            }
-          }
-        ]
-      }
-    ])
-    .exec((err, league) => {
-      if (err) return next(err);
-      const isPermitted = _.find(league.teams, function(team) {
-        return team.user._id == user._id;
-      });
-      if (!isPermitted) {
-        // send back some false object
-      }
-      return res.status(200).send({ league: league });
-    });
+
+  const foundLeague = await League.findById(leagueId);
+  const populatedLeague = await helper.populateLeague(foundLeague);
+
+  const isPermitted = _.find(populatedLeague.teams, function(team) {
+    return team.user._id == user._id;
+  });
+
+  if (!isPermitted) {
+    res.status(400).send({ message: 'You are not in the league' })
+  }
+  return res.status(200).send({ league: populatedLeague });
 }
 
 async function createLeague(req, res, next) {
