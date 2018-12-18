@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
-const request = require('request');
 
 const News = require('../models/News');
+const helper = require('../helpers');
 
 const NEWS_FETCH_INTERVAL = 600000;
 
@@ -26,7 +26,7 @@ function init(io) {
 async function getMostRecentPlayerNews(socket) {
   const newNews = await mongoose.model('News').findOne();
 
-  const data = await _requestHelper({
+  const data = await helper.asyncRequest({
       url: "http://api.fantasy.nfl.com/v1/players/news?format=json&count=20",
       method: "GET"
   }).then(response => JSON.parse(response));
@@ -35,16 +35,4 @@ async function getMostRecentPlayerNews(socket) {
 
   const updatedNews = await newNews.save();
   socket.emit('updated news', {news: updatedNews.players });
-}
-
-function _requestHelper(options) {
-  return new Promise((resolve, reject) => {
-    request(options, (error, response, body) => {
-      if (error) {
-        reject(error)
-      } else {
-        resolve(body);
-      }
-    })
-  })
 }

@@ -1,11 +1,11 @@
 const jwt = require('jsonwebtoken');
-const keys = require('../config/keys');
-
+const request = require('request');
 const mongoose = require('mongoose');
+
+const keys = require('../config/keys');
 
 const User = require('../models/User');
 const League = require('../models/League');
-
 
 module.exports = {
   encodeAuthToken(user) {
@@ -24,6 +24,18 @@ module.exports = {
     } catch (err) {
       return false;
     }
+  },
+
+  asyncRequest(options) {
+    return new Promise((resolve, reject) => {
+      request(options, (error, response, body) => {
+        if (error) {
+          reject(error)
+        } else {
+          resolve(body);
+        }
+      })
+    })
   },
 
   async populateUser(user) {
