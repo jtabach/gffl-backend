@@ -7,13 +7,13 @@ const FantasyController = {
 };
 
 let CACHE = {};
-let CACHE_TIME = 60000;
+let CACHE_TIME = 60000 * 60;
 
 async function getStandings(req, res, next) {
   const { fantasyLeagueId } = req.params;
 
   if (CACHE.standings && (Date.now() - CACHE.standings.lastUpdated) < CACHE_TIME) {
-    return res.status(200).send({ news: CACHE.standings.content });;
+    return res.status(200).send({ standings: CACHE.standings.content });;
   }
 
   const data = await helper.asyncRequest({
@@ -32,9 +32,16 @@ async function getStandings(req, res, next) {
 }
 
 function structureStandingsData(teams) {
-  return teams.map(({ teamLocation, teamNickname, owners, record }) => {
-    return { teamLocation, teamNickname, owners, record };
+  const divisions = {};
+
+  teams.forEach(({ teamLocation, teamNickname, owners, record, division }) => {
+    if (!divisions[division.divisionId]) {
+      divisions[division.divisionId] = [];
+    }
+    divisions[division.divisionId].push({ teamLocation, teamNickname, owners, record, division });
   });
+
+  return divisions;
 }
 
 module.exports = FantasyController;
