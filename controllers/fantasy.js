@@ -1,3 +1,4 @@
+const _ = require('lodash');
 const mongoose = require('mongoose');
 
 const helper = require('../helpers');
@@ -41,7 +42,18 @@ function structureStandingsData(teams) {
     divisions[division.divisionId].push({ teamLocation, teamNickname, owners, record, division });
   });
 
-  return divisions;
+  const sortedDivision = _.mapValues(divisions, (teams) => {
+    return _sortByDivisionRank(teams);
+  });
+
+  return sortedDivision;
+
+}
+
+function _sortByDivisionRank(teams) {
+  return _.sortBy(teams, (team) => {
+    return team.record.divisionStanding;
+  });
 }
 
 module.exports = FantasyController;
