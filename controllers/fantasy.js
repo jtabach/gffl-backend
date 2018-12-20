@@ -4,11 +4,13 @@ const mongoose = require('mongoose');
 const helper = require('../helpers');
 
 const FantasyController = {
-  getStandings
+  getStandings,
+  getScores
 };
 
-let CACHE = {};
-let CACHE_TIME = 60000 * 60;
+const CACHE = {};
+const CACHE_TIME = 60000 * 60;
+const ESPNBaseUrl = 'http://games.espn.com/ffl/api/v2';
 
 async function getStandings(req, res, next) {
   const { fantasyLeagueId } = req.params;
@@ -18,12 +20,12 @@ async function getStandings(req, res, next) {
   }
 
   const data = await helper.asyncRequest({
-      url: `http://games.espn.com/ffl/api/v2/standings?leagueId=${fantasyLeagueId}&seasonId=2018`,
+      url: `${ESPNBaseUrl}/standings?leagueId=${fantasyLeagueId}&seasonId=2018`,
       method: "GET"
   }).then(response => JSON.parse(response));
 
   const standingsData = {
-    content: structureStandingsData(data.teams),
+    content: _structureStandingsData(data.teams),
     lastUpdated: Date.now()
   };
 
@@ -32,7 +34,18 @@ async function getStandings(req, res, next) {
   return res.status(200).send({ standings: CACHE.standings.content });
 }
 
-function structureStandingsData(teams) {
+async function getScores(req, res, next) {
+  const { fantasyLeagueId, matchupPeriodId } = req.params;
+
+  const data = await helper.asyncRequest({
+    url: `${ESPNBaseUrl}/scoreboard?leagueId=${fantasyLeagueId}&matchupPeriodId=${matchupPeriodId}&seasonId=2018`,
+    method: "GET"
+  }).then(response => JSON.parse(response));
+
+  return res.status(200).send({ scores: data.scoreboard.matchups });
+}
+
+function _structureStandingsData(teams) {
   const divisions = {};
 
   teams.forEach(({ teamLocation, teamNickname, owners, record, division }) => {
@@ -47,7 +60,6 @@ function structureStandingsData(teams) {
   });
 
   return sortedDivision;
-
 }
 
 function _sortByDivisionRank(teams) {
