@@ -41,10 +41,11 @@ async function createLeague(req, res, next) {
   let newTeam = new Team();
 
   newLeague.name = req.body.leagueName;
+  newLeague.fantasyLeagueId = req.body.fantasyLeagueId;
   newLeague.admin = user._id;
   newLeague.teams.push(newTeam.id);
 
-  newTeam.name = req.body.teamName;
+  newTeam.fantasyTeamId = req.body.fantasyTeamId;
   newTeam.user = user._id;
   newTeam.league = newLeague.id;
 

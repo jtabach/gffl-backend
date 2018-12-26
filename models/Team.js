@@ -14,7 +14,7 @@ teamSchema = new Schema({
     ref: 'League',
     required: true
   },
-  name: { type: String, required: true }
+  fantasyTeamId: { type: String }
 });
 
 const Team = mongoose.model('Team', teamSchema);

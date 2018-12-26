@@ -5,6 +5,7 @@ const helper = require('../helpers');
 
 leagueSchema = new Schema({
   name: { type: String, required: true },
+  fantasyLeagueId: { type: String },
   admin: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
