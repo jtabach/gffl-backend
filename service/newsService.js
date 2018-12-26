@@ -24,7 +24,7 @@ function init(io) {
 }
 
 async function getMostRecentPlayerNews(socket) {
-  const newNews = await mongoose.model('News').findOne();
+  const newNews = await mongoose.model('News').findOne() || new News();
 
   const data = await helper.asyncRequest({
       url: "http://api.fantasy.nfl.com/v1/players/news?format=json&count=20",

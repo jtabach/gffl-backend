@@ -15,8 +15,12 @@ const ESPNBaseUrl = 'http://games.espn.com/ffl/api/v2';
 async function getStandings(req, res, next) {
   const { fantasyLeagueId } = req.params;
 
-  if (CACHE.standings && (Date.now() - CACHE.standings.lastUpdated) < CACHE_TIME) {
-    return res.status(200).send({ standings: CACHE.standings.content });;
+  if (!CACHE[fantasyLeagueId]) {
+    CACHE[fantasyLeagueId] = {}
+  }
+
+  if (CACHE[fantasyLeagueId].standings && (Date.now() - CACHE[fantasyLeagueId].standings.lastUpdated) < CACHE_TIME) {
+    return res.status(200).send({ standings: CACHE[fantasyLeagueId].standings.content });;
   }
 
   const data = await helper.asyncRequest({
@@ -29,9 +33,9 @@ async function getStandings(req, res, next) {
     lastUpdated: Date.now()
   };
 
-  CACHE.standings = standingsData;
+  CACHE[fantasyLeagueId].standings = standingsData;
 
-  return res.status(200).send({ standings: CACHE.standings.content });
+  return res.status(200).send({ standings: CACHE[fantasyLeagueId].standings.content });
 }
 
 async function getScores(req, res, next) {
