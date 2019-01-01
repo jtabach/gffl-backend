@@ -9,7 +9,8 @@ const League = require('../models/League');
 
 const LeagueController = {
   getLeague,
-  createLeague
+  createLeague,
+  setFantasyLeagueId
 };
 
 async function getLeague(req, res, next) {
@@ -59,6 +60,22 @@ async function createLeague(req, res, next) {
 
     const populatedTeam = await helper.populateTeam(newTeam);
     return res.status(200).send({ team: populatedTeam })
+  } catch (err) {
+    return res.status(400).send(err);
+  }
+}
+
+async function setFantasyLeagueId(req, res, next) {
+  const { fantasyLeagueId } = req.body;
+  const { leagueId } = req.params;
+  try {
+    const foundLeague = await League.findById(leagueId);
+    console.log(typeof fantasyLeagueId);
+    foundLeague.fantasyLeagueId = fantasyLeagueId;
+    // TODO: check to see if fantasy id works with ESPN
+    await foundLeague.save();
+    console.log(fantasyLeagueId);
+    return res.status(200).send({ fantasyLeagueId: fantasyLeagueId });
   } catch (err) {
     return res.status(400).send(err);
   }

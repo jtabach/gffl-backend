@@ -33,6 +33,8 @@ async function getStandings(req, res, next) {
     lastUpdated: Date.now()
   };
 
+  console.log(standingsData);
+
   CACHE[fantasyLeagueId].standings = standingsData;
 
   return res.status(200).send({ standings: CACHE[fantasyLeagueId].standings.content });
@@ -50,6 +52,9 @@ async function getScores(req, res, next) {
 }
 
 function _structureStandingsData(teams) {
+  if (!teams) {
+    return null;
+  }
   const divisions = {};
 
   teams.forEach(({ teamLocation, teamNickname, owners, record, division }) => {
