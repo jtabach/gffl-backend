@@ -73,7 +73,8 @@ async function login(req, res, next) {
   res.cookie('authToken', authToken);
 
   const populatedUser = await helper.populateUser(foundUser);
-  res.status(200).send({ user: populatedUser });
+  const safeUserObject = helper.getSafeUserObject(populatedUser._doc);
+  return res.status(200).send({ user: safeUserObject });
 }
 
 function logout(req, res, next) {
