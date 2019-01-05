@@ -13,7 +13,8 @@ const AuthController = {
 };
 
 async function register(req, res, next) {
-  const email = req.body.email.toLowerCase();
+  let { email, firstName, lastName } = req.body;
+  email = email.toLowerCase();
   const password = req.body.password;
 
   // check if user or email already exists
@@ -30,12 +31,15 @@ async function register(req, res, next) {
 
   user.email = email;
   user.password = hash;
+  user.firstName = firstName;
+  user.lastName = lastName;
 
   try {
     const savedUser = await user.save();
     const authToken = helper.encodeAuthToken(savedUser);
     res.cookie('authToken', authToken);
-    return res.status(200).send({ user: savedUser });
+    const safeUserObject = helper.getSafeUserObject(savedUser._doc);
+    return res.status(200).send({ user: safeUserObject });
   } catch (err) {
     return res.status(400).send(err);
   }
@@ -75,6 +79,11 @@ async function login(req, res, next) {
 function logout(req, res, next) {
   res.clearCookie('authToken');
   return res.status(200).send({ user: false });
+}
+
+function getSafeUserObject(user) {
+  const { password, ...safeUser } = user;
+  return safeUser;
 }
 
 module.exports = AuthController;

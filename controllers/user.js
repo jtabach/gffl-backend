@@ -18,7 +18,8 @@ async function getUser(req, res, next) {
     return res.status(400).send({ user: user });
   } else {
     const populatedUser = await helper.populateUser(user);
-    return res.status(200).send({ user: populatedUser });
+    const safeUserObject = helper.getSafeUserObject(populatedUser._doc);
+    return res.status(200).send({ user: safeUserObject });
   }
 }
 

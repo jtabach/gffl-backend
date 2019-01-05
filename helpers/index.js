@@ -26,6 +26,11 @@ module.exports = {
     }
   },
 
+  getSafeUserObject(userObject) {
+    const { password, ...safeUserObject } = userObject;
+    return safeUserObject;
+  },
+
   asyncRequest(options) {
     return new Promise((resolve, reject) => {
       request(options, (error, response, body) => {
