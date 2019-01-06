@@ -31,6 +31,10 @@ module.exports = {
     return safeUserObject;
   },
 
+  getESPNAuthCookieString() {
+    return `espn_s2=${keys.espnS2}; SWID=${keys.swid}`;
+  },
+
   asyncRequest(options) {
     return new Promise((resolve, reject) => {
       request(options, (error, response, body) => {

@@ -5,7 +5,8 @@ const helper = require('../helpers');
 
 const FantasyController = {
   getStandings,
-  getScores
+  getScores,
+  getRoster
 };
 
 const CACHE = {};
@@ -49,6 +50,20 @@ async function getScores(req, res, next) {
   }).then(response => JSON.parse(response));
 
   return res.status(200).send({ scores: data.scoreboard.matchups });
+}
+
+async function getRoster(req, res, next) {
+  const { fantasyLeagueId, fantasyTeamId } = req.params;
+
+  const data = await helper.asyncRequest({
+    url: `${ESPNBaseUrl}/rosterInfo?leagueId=${fantasyLeagueId}&seasonId=2018&teamId=${fantasyTeamId}`,
+    method: "GET",
+    headers: {
+     'Cookie': helper.getESPNAuthCookieString()
+    }
+  }).then(response => JSON.parse(response));
+
+  return res.status(200).send({ roster: data.leagueRosters.teams });
 }
 
 function _structureStandingsData(teams) {
