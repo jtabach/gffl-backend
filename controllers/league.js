@@ -70,11 +70,9 @@ async function setFantasyLeagueId(req, res, next) {
   const { leagueId } = req.params;
   try {
     const foundLeague = await League.findById(leagueId);
-    console.log(typeof fantasyLeagueId);
     foundLeague.fantasyLeagueId = fantasyLeagueId;
     // TODO: check to see if fantasy id works with ESPN
     await foundLeague.save();
-    console.log(fantasyLeagueId);
     return res.status(200).send({ fantasyLeagueId: fantasyLeagueId });
   } catch (err) {
     return res.status(400).send(err);

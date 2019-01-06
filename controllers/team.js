@@ -8,7 +8,8 @@ const League = require('../models/League');
 
 const TeamController = {
   getTeam,
-  createTeam
+  createTeam,
+  setFantasyTeamId
 };
 
 function getTeam(req, res, next) {
@@ -71,6 +72,21 @@ async function createTeam(req, res, next) {
     res.status(400).send({ team: populatedTeam })
   } catch (err) {
     return res.status(400).send(err)
+  }
+}
+
+async function setFantasyTeamId(req, res, next) {
+  const { fantasyTeamId } = req.body;
+  const { teamId } = req.params;
+
+  try {
+    const foundTeam = await Team.findById(teamId);
+    foundTeam.fantasyTeamId = fantasyTeamId;
+    // TODO: check to see if fantasy team id works with ESPN
+    await foundTeam.save();
+    return res.status(200).send({ fantasyTeamId: fantasyTeamId });
+  } catch (err) {
+    return res.status(400).send(err);
   }
 }
 
