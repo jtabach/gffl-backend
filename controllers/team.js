@@ -9,7 +9,7 @@ const League = require('../models/League');
 const TeamController = {
   getTeam,
   createTeam,
-  setFantasyTeamId
+  setFantasyEspnCookies
 };
 
 function getTeam(req, res, next) {
@@ -75,19 +75,21 @@ async function createTeam(req, res, next) {
   }
 }
 
-async function setFantasyTeamId(req, res, next) {
-  const { fantasyTeamId } = req.body;
+async function setFantasyEspnCookies(req, res, next) {
+  const { espnCookieS2, espnCookieSwid } = req.body;
   const { teamId } = req.params;
 
-  try {
-    const foundTeam = await Team.findById(teamId);
-    foundTeam.fantasyTeamId = fantasyTeamId;
-    // TODO: check to see if fantasy team id works with ESPN
-    await foundTeam.save();
-    return res.status(200).send({ fantasyTeamId: fantasyTeamId });
-  } catch (err) {
-    return res.status(400).send(err);
-  }
+  console.log(espnCookieS2, espnCookieSwid, teamId);
+
+  // try {
+  //   const foundTeam = await Team.findById(teamId);
+  //   foundTeam.fantasyTeamId = fantasyTeamId;
+  //   // TODO: check to see if fantasy team id works with ESPN
+  //   await foundTeam.save();
+  //   return res.status(200).send({ fantasyTeamId: fantasyTeamId });
+  // } catch (err) {
+  //   return res.status(400).send(err);
+  // }
 }
 
 module.exports = TeamController;
