@@ -31,12 +31,14 @@ function getTeam(req, res, next) {
 
 async function createTeam(req, res, next) {
   let { authToken } = req.cookies;
+  const { espnCookieS2, espnCookieSwid, leagueId } = req.body
+
   let user = helper.decodeAuthToken(authToken);
 
   let newTeam = new Team();
 
-  newTeam.fantasyTeamId = req.body.fantasyTeamId;
-  newTeam.league = req.body.leagueId;
+  newTeam.espnCookieString = helper.structureEspnCookieString(espnCookieS2, espnCookieSwid);
+  newTeam.league = leagueId;
   newTeam.user = user._id;
 
   var foundLeague;
