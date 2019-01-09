@@ -35,18 +35,19 @@ async function getLeague(req, res, next) {
 }
 
 async function createLeague(req, res, next) {
-  let { authToken } = req.cookies;
-  let user = helper.decodeAuthToken(authToken);
+  const { authToken } = req.cookies;
+  const { espnCookieS2, espnCookieSwid, fantasyLeagueId, leagueName } = req.body
+  const user = helper.decodeAuthToken(authToken);
 
-  let newLeague = new League();
-  let newTeam = new Team();
+  const newLeague = new League();
+  const newTeam = new Team();
 
-  newLeague.name = req.body.leagueName;
-  newLeague.fantasyLeagueId = req.body.fantasyLeagueId;
+  newLeague.name = leagueName;
+  newLeague.fantasyLeagueId = fantasyLeagueId;
   newLeague.admin = user._id;
   newLeague.teams.push(newTeam.id);
 
-  newTeam.fantasyTeamId = req.body.fantasyTeamId;
+  newTeam.espnCookieString = helper.structureEspnCookieString(espnCookieS2, espnCookieSwid);
   newTeam.user = user._id;
   newTeam.league = newLeague.id;
 

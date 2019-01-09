@@ -32,6 +32,9 @@ module.exports = {
   },
 
   structureEspnCookieString(s2, swid) {
+    if (!s2 || !swid) {
+      return null;
+    }
     return `espn_s2=${s2}; SWID=${swid}`;
   },
 
