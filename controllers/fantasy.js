@@ -59,8 +59,6 @@ async function getStandings(req, res, next) {
     lastUpdated: Date.now()
   };
 
-  console.log(standingsData);
-
   CACHE[fantasyLeagueId].standings = standingsData;
 
   return res.status(200).send({ standings: CACHE[fantasyLeagueId].standings.content });
@@ -78,15 +76,15 @@ async function getScores(req, res, next) {
 }
 
 async function getRoster(req, res, next) {
-  const { fantasyLeagueId, fantasyTeamId } = req.params;
+  const { fantasyLeagueId, teamId } = req.params;
 
   const foundTeam = await Team.findById(teamId);
 
   const data = await helper.asyncRequest({
-    url: `${ESPN_BASE_URL}/rosterInfo?leagueId=${fantasyLeagueId}&seasonId=2018&teamId=${fantasyTeamId}`,
+    url: `${ESPN_BASE_URL}/rosterInfo?leagueId=${fantasyLeagueId}&seasonId=2018`,
     method: "GET",
     headers: {
-     'Cookie': helper.getESPNAuthCookieString()
+     'Cookie': foundTeam.espnCookieString
     }
   }).then(response => JSON.parse(response));
 
