@@ -81,14 +81,13 @@ async function setFantasyEspnCookies(req, res, next) {
   const { teamId } = req.params;
 
   const espnCookieString = helper.structureEspnCookieString(espnCookieS2, espnCookieSwid);
-  const hash = await bcrypt.hash(espnCookieString, 7);
 
   try {
     const foundTeam = await Team.findById(teamId);
-    foundTeam.espnAuthCookie = hash;
+    foundTeam.espnCookieString = espnCookieString;
     // TODO: check to see if fantasy team id works with ESPN
     await foundTeam.save();
-    return res.status(200).send({ espnAuthCookie: foundTeam.espnAuthCookie });
+    return res.status(200).send({ espnCookieString: foundTeam.espnCookieString });
   } catch (err) {
     return res.status(400).send(err);
   }

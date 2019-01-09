@@ -3,6 +3,8 @@ const mongoose = require('mongoose');
 
 const helper = require('../helpers');
 
+const Team = require('../models/Team');
+
 const FantasyController = {
   getStandings,
   getScores,
@@ -77,6 +79,8 @@ async function getScores(req, res, next) {
 
 async function getRoster(req, res, next) {
   const { fantasyLeagueId, fantasyTeamId } = req.params;
+
+  const foundTeam = await Team.findById(teamId);
 
   const data = await helper.asyncRequest({
     url: `${ESPN_BASE_URL}/rosterInfo?leagueId=${fantasyLeagueId}&seasonId=2018&teamId=${fantasyTeamId}`,

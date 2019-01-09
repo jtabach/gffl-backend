@@ -14,7 +14,7 @@ teamSchema = new Schema({
     ref: 'League',
     required: true
   },
-  espnAuthCookie: {
+  espnCookieString: {
     type: String
   }
 });
