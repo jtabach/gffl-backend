@@ -35,6 +35,10 @@ module.exports = {
     return `espn_s2=${keys.espnS2}; SWID=${keys.swid}`;
   },
 
+  structureEspnCookieString(s2, swid) {
+    return `espn_s2=${s2}; SWID=${swid}`;
+  },
+
   asyncRequest(options) {
     return new Promise((resolve, reject) => {
       request(options, (error, response, body) => {

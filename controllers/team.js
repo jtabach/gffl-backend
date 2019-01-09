@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const bcrypt = require('bcrypt');
 
 const helper = require('../helpers');
 
@@ -79,17 +80,18 @@ async function setFantasyEspnCookies(req, res, next) {
   const { espnCookieS2, espnCookieSwid } = req.body;
   const { teamId } = req.params;
 
-  console.log(espnCookieS2, espnCookieSwid, teamId);
+  const espnCookieString = helper.structureEspnCookieString(espnCookieS2, espnCookieSwid);
+  const hash = await bcrypt.hash(espnCookieString, 7);
 
-  // try {
-  //   const foundTeam = await Team.findById(teamId);
-  //   foundTeam.fantasyTeamId = fantasyTeamId;
-  //   // TODO: check to see if fantasy team id works with ESPN
-  //   await foundTeam.save();
-  //   return res.status(200).send({ fantasyTeamId: fantasyTeamId });
-  // } catch (err) {
-  //   return res.status(400).send(err);
-  // }
+  try {
+    const foundTeam = await Team.findById(teamId);
+    foundTeam.espnAuthCookie = hash;
+    // TODO: check to see if fantasy team id works with ESPN
+    await foundTeam.save();
+    return res.status(200).send({ fantasyEspnAuthHash: foundTeam.espnAuthCookie });
+  } catch (err) {
+    return res.status(400).send(err);
+  }
 }
 
 module.exports = TeamController;
