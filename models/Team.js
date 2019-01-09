@@ -14,7 +14,9 @@ teamSchema = new Schema({
     ref: 'League',
     required: true
   },
-  fantasyTeamId: { type: String }
+  espnCookieString: {
+    type: String
+  }
 });
 
 const Team = mongoose.model('Team', teamSchema);

@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const bcrypt = require('bcrypt');
 
 const helper = require('../helpers');
 
@@ -9,7 +10,7 @@ const League = require('../models/League');
 const TeamController = {
   getTeam,
   createTeam,
-  setFantasyTeamId
+  setFantasyEspnCookies
 };
 
 function getTeam(req, res, next) {
@@ -30,12 +31,14 @@ function getTeam(req, res, next) {
 
 async function createTeam(req, res, next) {
   let { authToken } = req.cookies;
+  const { espnCookieS2, espnCookieSwid, leagueId } = req.body
+
   let user = helper.decodeAuthToken(authToken);
 
   let newTeam = new Team();
 
-  newTeam.fantasyTeamId = req.body.fantasyTeamId;
-  newTeam.league = req.body.leagueId;
+  newTeam.espnCookieString = helper.structureEspnCookieString(espnCookieS2, espnCookieSwid);
+  newTeam.league = leagueId;
   newTeam.user = user._id;
 
   var foundLeague;
@@ -75,16 +78,18 @@ async function createTeam(req, res, next) {
   }
 }
 
-async function setFantasyTeamId(req, res, next) {
-  const { fantasyTeamId } = req.body;
+async function setFantasyEspnCookies(req, res, next) {
+  const { espnCookieS2, espnCookieSwid } = req.body;
   const { teamId } = req.params;
+
+  const espnCookieString = helper.structureEspnCookieString(espnCookieS2, espnCookieSwid);
 
   try {
     const foundTeam = await Team.findById(teamId);
-    foundTeam.fantasyTeamId = fantasyTeamId;
+    foundTeam.espnCookieString = espnCookieString;
     // TODO: check to see if fantasy team id works with ESPN
     await foundTeam.save();
-    return res.status(200).send({ fantasyTeamId: fantasyTeamId });
+    return res.status(200).send({ espnCookieString: foundTeam.espnCookieString });
   } catch (err) {
     return res.status(400).send(err);
   }

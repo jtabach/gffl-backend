@@ -5,6 +5,6 @@ const TeamController = require('../../controllers/team');
 
 router.get('/:leagueId', TeamController.getTeam);
 router.post('/', TeamController.createTeam);
-router.post('/setFantasyTeamId/:teamId', TeamController.setFantasyTeamId)
+router.post('/setFantasyEspnCookies/:teamId', TeamController.setFantasyEspnCookies)
 
 module.exports = router;
