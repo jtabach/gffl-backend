@@ -21,6 +21,7 @@ async function createComment(req, res, next) {
   newComment.league = leagueId;
   newComment.team = teamId;
   newComment.post = postId;
+  newComment.date = Date.now();
 
   try {
     const post = await mongoose.model('Post').findById(postId);
