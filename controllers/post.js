@@ -21,6 +21,7 @@ async function createPost(req, res, next) {
   newPost.text = text;
   newPost.league = leagueId;
   newPost.team = teamId;
+  newPost.date = Date.now();
 
   try {
     const league = await mongoose.model('League').findById(leagueId);
