@@ -12,7 +12,8 @@ const Notification = require('../models/Notification');
 
 const NotificationController = {
   getNotifications,
-  createPostNotification,
+  createPostOnTimelineNotification,
+  createLikeOnPostNotification,
   viewNotification,
   viewAllNotifications,
   dismissNotifications
@@ -34,7 +35,7 @@ async function getNotifications(req, res, next) {
   }
 }
 
-async function createPostNotification(req, res, next) {
+async function createPostOnTimelineNotification(req, res, next) {
   let { authToken } = req.cookies;
   let user = helper.decodeAuthToken(authToken);
   const { leagueId, verb, actingOn, actor } = req.body;
@@ -50,25 +51,64 @@ async function createPostNotification(req, res, next) {
       // TODO: check if user preferences for recieving notification
       if (actor != team.user) {
         const postOnTimeline = await mongoose.model('PostOnTimeline')
-          .create({ actingOn: 'The Count of Monte Cristo' });
+          .create({ actingOn: 'timeline' });
 
-        const newNotification = new Notification();
+        const newPostOnTimelineNotification = await mongoose.model('Notification')
+          .create({
+            verb: verb,
+            actor: actor,
+            league: leagueId,
+            hasViewed: false,
+            hasDismissed: false,
+            date: Date.now(),
+            notificationType: postOnTimeline._id,
+            onModel: 'PostOnTimeline'
+          });
 
-        newNotification.user = foundUser._id;
-        newNotification.verb = verb;
-        newNotification.actor = actor;
-        newNotification.league = leagueId;
-        newNotification.hasViewed = false;
-        newNotification.hasDismissed = false;
-        newNotification.date = Date.now();
-        newNotification.notificationType = postOnTimeline._id;
-        newNotification.onModel = 'PostOnTimeline';
-
-        foundUser.notifications.push(newNotification);
+        foundUser.notifications.push(newPostOnTimelineNotification);
         await foundUser.save();
-        await newNotification.save();
+        await newPostOnTimelineNotification.save();
       }
     });
+
+    return res.status(200).send({ success: true });
+  } catch (err) {
+    return res.status(400).send(err);
+  }
+}
+
+async function createLikeOnPostNotification(req, res, next) {
+  console.log('body', req.body);
+  let { authToken } = req.cookies;
+  let user = helper.decodeAuthToken(authToken);
+  const { leagueId, verb, actingOn, actor, patient, postId } = req.body;
+  // TODO: since actor is passed from client verify perms to create notification
+
+  try {
+    const foundUser = await mongoose.model('User').findById(patient);
+
+    const likeOnPost = await mongoose.model('LikeOnPost')
+      .create({
+        actingOn: actingOn,
+        post: postId,
+        patient: patient
+      });
+
+    const newLikeOnPostNotification = await mongoose.model('Notification')
+      .create({
+        verb: verb,
+        actor: actor,
+        league: leagueId,
+        hasViewed: false,
+        hasDismissed: false,
+        date: Date.now(),
+        notificationType: likeOnPost._id,
+        onModel: 'LikeOnPost'
+      });
+
+    foundUser.notifications.push(newLikeOnPostNotification);
+    await foundUser.save();
+    await newLikeOnPostNotification.save();
 
     return res.status(200).send({ success: true });
   } catch (err) {
