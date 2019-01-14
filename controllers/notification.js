@@ -12,7 +12,7 @@ const Notification = require('../models/Notification');
 
 const NotificationController = {
   getNotifications,
-  createNotification,
+  createPostNotification,
   viewNotification,
   viewAllNotifications,
   dismissNotifications
@@ -34,11 +34,11 @@ async function getNotifications(req, res, next) {
   }
 }
 
-async function createNotification(req, res, next) {
+async function createPostNotification(req, res, next) {
   let { authToken } = req.cookies;
   let user = helper.decodeAuthToken(authToken);
-  const { leagueId, verb, actingOn } = req.body;
-  const actor = user._id;
+  const { leagueId, verb, actingOn, actor } = req.body;
+  // TODO: since actor is passed from client verify perms to create notification
 
   try {
     const foundLeague = await mongoose.model('League').findById(leagueId);
@@ -58,6 +58,7 @@ async function createNotification(req, res, next) {
         newNotification.actingOn = actingOn;
         newNotification.hasViewed = false;
         newNotification.hasDismissed = false;
+        newNotification.date = Date.now();
 
         foundUser.notifications.push(newNotification);
         await foundUser.save();
