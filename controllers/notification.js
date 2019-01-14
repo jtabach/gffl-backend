@@ -49,16 +49,20 @@ async function createPostNotification(req, res, next) {
 
       // TODO: check if user preferences for recieving notification
       if (actor != team.user) {
+        const postOnTimeline = await mongoose.model('PostOnTimeline')
+          .create({ actingOn: 'The Count of Monte Cristo' });
+
         const newNotification = new Notification();
 
         newNotification.user = foundUser._id;
         newNotification.verb = verb;
         newNotification.actor = actor;
         newNotification.league = leagueId;
-        newNotification.actingOn = actingOn;
         newNotification.hasViewed = false;
         newNotification.hasDismissed = false;
         newNotification.date = Date.now();
+        newNotification.notificationType = postOnTimeline._id;
+        newNotification.onModel = 'PostOnTimeline';
 
         foundUser.notifications.push(newNotification);
         await foundUser.save();

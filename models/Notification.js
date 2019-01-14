@@ -2,11 +2,6 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 notificationSchema = new Schema({
-  user: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
-  },
   actor: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
@@ -21,10 +16,6 @@ notificationSchema = new Schema({
     type: String,
     required: true
   },
-  actingOn: {
-    type: String,
-    required: true
-  },
   hasViewed: {
     type: Boolean,
     required: true
@@ -33,8 +24,28 @@ notificationSchema = new Schema({
     type: Boolean,
     required: true
   },
-  date: { type: Date, default: Date.now() }
+  date: {
+    type: Date,
+    default: Date.now()
+  },
+  notificationType: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+    refPath: 'onModel'
+  },
+  onModel: {
+    type: String,
+    required: true,
+    enum: ['PostOnTimeline']
+  }
 });
+
+const PostOnTimeline = mongoose.model('PostOnTimeline', new Schema({
+  actingOn: {
+    type: String,
+    required: true
+  }
+}));
 
 const Notification = mongoose.model('Notification', notificationSchema);
 
