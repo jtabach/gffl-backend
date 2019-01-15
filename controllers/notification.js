@@ -143,7 +143,7 @@ async function createCommentOnPostNotification(req, res, next) {
         hasViewed: false,
         hasDismissed: false,
         date: Date.now(),
-        notificationType: likeOnPost._id,
+        notificationType: commentOnPost._id,
         onModel: 'CommentOnPost'
       });
 

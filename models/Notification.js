@@ -36,7 +36,7 @@ notificationSchema = new Schema({
   onModel: {
     type: String,
     required: true,
-    enum: ['PostOnTimeline', 'LikeOnPost']
+    enum: ['PostOnTimeline', 'LikeOnPost', 'CommentOnPost']
   }
 });
 
@@ -48,6 +48,23 @@ const PostOnTimeline = mongoose.model('PostOnTimeline', new Schema({
 }));
 
 const LikeOnPost = mongoose.model('LikeOnPost', new Schema({
+  actingOn: {
+    type: String,
+    required: true
+  },
+  patient: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
+  post: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Post',
+    required: true
+  }
+}));
+
+const CommentOnPost = mongoose.model('CommentOnPost', new Schema({
   actingOn: {
     type: String,
     required: true
