@@ -78,23 +78,23 @@ async function createPostOnTimelineNotification(req, res, next) {
 }
 
 async function createLikeOnPostNotification(req, res, next) {
-  console.log('body', req.body);
   let { authToken } = req.cookies;
   let user = helper.decodeAuthToken(authToken);
   const { leagueId, verb, actingOn, actor, patient, postId } = req.body;
   // TODO: since actor is passed from client verify perms to create notification
 
-  try {
-    const foundUser = await mongoose.model('User').findById(patient);
+  if (actor != patient) {
+    try {
+      const foundUser = await mongoose.model('User').findById(patient);
 
-    const likeOnPost = await mongoose.model('LikeOnPost')
+      const likeOnPost = await mongoose.model('LikeOnPost')
       .create({
         actingOn: actingOn,
         post: postId,
         patient: patient
       });
 
-    const newLikeOnPostNotification = await mongoose.model('Notification')
+      const newLikeOnPostNotification = await mongoose.model('Notification')
       .create({
         verb: verb,
         actor: actor,
@@ -106,13 +106,14 @@ async function createLikeOnPostNotification(req, res, next) {
         onModel: 'LikeOnPost'
       });
 
-    foundUser.notifications.push(newLikeOnPostNotification);
-    await foundUser.save();
-    await newLikeOnPostNotification.save();
+      foundUser.notifications.push(newLikeOnPostNotification);
+      await foundUser.save();
+      await newLikeOnPostNotification.save();
 
-    return res.status(200).send({ success: true });
-  } catch (err) {
-    return res.status(400).send(err);
+      return res.status(200).send({ success: true });
+    } catch (err) {
+      return res.status(400).send(err);
+    }
   }
 }
 
