@@ -14,6 +14,7 @@ const NotificationController = {
   getNotifications,
   createPostOnTimelineNotification,
   createLikeOnPostNotification,
+  createCommentOnPostNotification,
   viewNotification,
   viewAllNotifications,
   dismissNotifications
@@ -109,6 +110,46 @@ async function createLikeOnPostNotification(req, res, next) {
       foundUser.notifications.push(newLikeOnPostNotification);
       await foundUser.save();
       await newLikeOnPostNotification.save();
+
+      return res.status(200).send({ success: true });
+    } catch (err) {
+      return res.status(400).send(err);
+    }
+  }
+}
+
+async function createCommentOnPostNotification(req, res, next) {
+  let { authToken } = req.cookies;
+  let user = helper.decodeAuthToken(authToken);
+  const { leagueId, verb, actingOn, actor, patient, postId } = req.body;
+  // TODO: since actor is passed from client verify perms to create notification
+
+  if (actor != patient) {
+    try {
+      const foundUser = await mongoose.model('User').findById(patient);
+
+      const commentOnPost = await mongoose.model('CommentOnPost')
+      .create({
+        actingOn: actingOn,
+        post: postId,
+        patient: patient
+      });
+
+      const newCommentOnPostNotification = await mongoose.model('Notification')
+      .create({
+        verb: verb,
+        actor: actor,
+        league: leagueId,
+        hasViewed: false,
+        hasDismissed: false,
+        date: Date.now(),
+        notificationType: likeOnPost._id,
+        onModel: 'CommentOnPost'
+      });
+
+      foundUser.notifications.push(newCommentOnPostNotification);
+      await foundUser.save();
+      await newCommentOnPostNotification.save();
 
       return res.status(200).send({ success: true });
     } catch (err) {
