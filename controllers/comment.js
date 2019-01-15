@@ -31,7 +31,11 @@ async function createComment(req, res, next) {
     const savedComment = await newComment.save();
     const populatedComment = await mongoose.model('Post').populate(savedComment, {
       path: 'team',
-      model: 'Team'
+      model: 'Team',
+      populate: {
+        path: 'user',
+        model: 'User'
+      }
     });
 
     return res.status(200).send({ comment: populatedComment });

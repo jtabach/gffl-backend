@@ -31,7 +31,11 @@ async function createPost(req, res, next) {
     const savedPost = await newPost.save();
     const populatedPost = await mongoose.model('Post').populate(savedPost, {
       path: 'team',
-      model: 'Team'
+      model: 'Team',
+      populate: {
+        path: 'user',
+        model: 'User'
+      }
     });
     return res.status(200).send({ post: populatedPost });
   } catch (err) {
