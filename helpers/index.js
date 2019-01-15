@@ -112,14 +112,22 @@ module.exports = {
         populate: [
           {
             path: 'team',
-            model: 'Team'
+            model: 'Team',
+            populate: {
+              path: 'user',
+              model: 'User'
+            }
           },
           {
             path: 'comments',
             model: 'Comment',
             populate: {
               path: 'team',
-              model: 'Team'
+              model: 'Team',
+              populate: {
+                path: 'user',
+                model: 'User'
+              }
             }
           },
           {
@@ -127,7 +135,11 @@ module.exports = {
             model: 'Like',
             populate: {
               path: 'team',
-              model: 'Team'
+              model: 'Team',
+              populate: {
+                path: 'user',
+                model: 'User'
+              }
             }
           }
         ]
