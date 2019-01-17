@@ -15,7 +15,7 @@ async function getUser(req, res, next) {
   const { authToken } = req.cookies;
   const user = helper.decodeAuthToken(authToken);
   if (!user) {
-    return res.status(400).send({ user: user });
+    return res.status(400).send({ user: { _id: false } });
   } else {
     const populatedUser = await helper.populateUser(user);
     const safeUserObject = helper.getSafeUserObject(populatedUser._doc);

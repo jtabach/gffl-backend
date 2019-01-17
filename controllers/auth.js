@@ -51,19 +51,17 @@ async function login(req, res, next) {
       .status(400)
       .send({ user: false, message: 'Missing e-mail or password' });
   }
-  var foundUser;
 
-  try {
-    foundUser = await User.findOne({ email: req.body.email });
-  } catch {
+  const foundUser = await User.findOne({ email: req.body.email });
+  if (!foundUser) {
     return res
       .status(400)
       .send({ user: false, message: 'Incorrect email or password' });
   }
 
-  try {
-    await bcrypt.compare(req.body.password, foundUser.password);
-  } catch {
+
+  const isMatch = await bcrypt.compare(req.body.password, foundUser.password);
+  if (!isMatch) {
     return res
       .status(400)
       .send({ user: false, message: 'Incorrect email or password' });
