@@ -41,25 +41,24 @@ async function createTeam(req, res, next) {
   newTeam.league = leagueId;
   newTeam.user = user._id;
 
-  var foundLeague;
 
-  try {
-    foundLeague = await mongoose.model('League').findById(newTeam.league);
-  } catch {
-    return res.status(400).send({ message: 'LeagueId does not exist' });
+  const foundLeague = await mongoose.model('League').findById(newTeam.league);
+  if (!foundLeague) {
+    return res.status(400).send({ message: 'League Id does not exist' });
   }
 
-  const errorTeam = await Team.findOne({ user: newTeam.user, league: newTeam.league });
-  if (errorTeam) {
+  const foundTeam = await Team.findOne({ user: newTeam.user, league: newTeam.league });
+  if (foundTeam) {
     return res.status(400).send({ message: 'You already have a team in this league' })
   }
 
-  if (newTeam.fantasyTeamId) {
-    const duplicateTeam = await mongoose.model('Team').findOne({ name: newTeam.fantasyTeamId, league: newTeam.league });
-    if (duplicateTeam) {
-      return res.status(400).send({ message: 'This team id has already been taken in this league' })
-    }
-  }
+  // TODO: switch to espn cookies
+  // if (newTeam.fantasyTeamId) {
+  //   const duplicateTeam = await mongoose.model('Team').findOne({ name: newTeam.fantasyTeamId, league: newTeam.league });
+  //   if (duplicateTeam) {
+  //     return res.status(400).send({ message: 'This team id has already been taken in this league' })
+  //   }
+  // }
 
   try {
     await newTeam.save();
