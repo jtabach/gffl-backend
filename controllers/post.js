@@ -77,14 +77,22 @@ function editPost(req, res, next) {
         [
           {
             path: 'team',
-            model: 'Team'
+            model: 'Team',
+            populate: {
+              path: 'user',
+              model: 'User'
+            }
           },
           {
             path: 'comments',
             model: 'Comment',
             populate: {
               path: 'team',
-              model: 'Team'
+              model: 'Team',
+              populate: {
+                path: 'user',
+                model: 'User'
+              }
             }
           },
           {
@@ -92,7 +100,11 @@ function editPost(req, res, next) {
             model: 'Like',
             populate: {
               path: 'team',
-              model: 'Team'
+              model: 'Team',
+              populate: {
+                path: 'user',
+                model: 'User'
+              }
             }
           }
         ],
