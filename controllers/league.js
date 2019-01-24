@@ -70,17 +70,23 @@ async function createLeague(req, res, next) {
 async function setFantasyLeagueId(req, res, next) {
   const { leagueId } = req.params;
   const { fantasyLeagueId } = req.body;
-  
-  try {
-    const foundLeague = await League.findById(leagueId);
-    foundLeague.fantasyLeagueId = fantasyLeagueId;
-    // TODO: check to see if fantasy id works with ESPN
-    // verifyFantasyLeagueId(fantasyLeagueid)
-    await foundLeague.save();
-    return res.status(200).send({ fantasyLeagueId: fantasyLeagueId });
-  } catch (err) {
-    return res.status(400).send(err);
+
+  const foundLeague = await League.findById(leagueId);
+  foundLeague.fantasyLeagueId = fantasyLeagueId;
+
+  const isLeagueVerified = await _verifyFantasyLeagueId(fantasyLeagueId);
+  if (!isLeagueVerified) {
+    return res.status(400).send({
+      verify: false,
+      message: 'Not a valid ESPN fantasy league id'
+    });
   }
+  
+  await foundLeague.save();
+  return res.status(200).send({
+    verify: true,
+    fantasyLeagueId: fantasyLeagueId
+  });
 }
 
 async function deleteFantasyLeagueId(req, res, next) {
@@ -97,6 +103,20 @@ async function deleteFantasyLeagueId(req, res, next) {
   } catch (err) {
     return res.status(400).send(err);
   }
+}
+
+async function _verifyFantasyLeagueId(fantasyLeagueId) {
+  const ESPN_BASE_URL = 'http://games.espn.com/ffl/api/v2';
+
+  const data = await helper.asyncRequest({
+    url: `${ESPN_BASE_URL}/scoreboard?leagueId=${fantasyLeagueId}&matchupPeriodId=1&seasonId=2018`,
+    method: "GET"
+  }).then(response => JSON.parse(response));
+
+  if (data.scoreboard) {
+    return true;
+  }
+  return false;
 }
 
 module.exports = LeagueController;
