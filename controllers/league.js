@@ -81,10 +81,11 @@ async function setFantasyLeagueId(req, res, next) {
       message: 'Not a valid ESPN fantasy league id'
     });
   }
-  
+
   await foundLeague.save();
   return res.status(200).send({
     verify: true,
+    message: 'fantasy league id set successfully',
     fantasyLeagueId: fantasyLeagueId
   });
 }
