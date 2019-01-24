@@ -68,12 +68,14 @@ async function createLeague(req, res, next) {
 }
 
 async function setFantasyLeagueId(req, res, next) {
-  const { fantasyLeagueId } = req.body;
   const { leagueId } = req.params;
+  const { fantasyLeagueId } = req.body;
+  
   try {
     const foundLeague = await League.findById(leagueId);
     foundLeague.fantasyLeagueId = fantasyLeagueId;
     // TODO: check to see if fantasy id works with ESPN
+    // verifyFantasyLeagueId(fantasyLeagueid)
     await foundLeague.save();
     return res.status(200).send({ fantasyLeagueId: fantasyLeagueId });
   } catch (err) {
@@ -82,13 +84,16 @@ async function setFantasyLeagueId(req, res, next) {
 }
 
 async function deleteFantasyLeagueId(req, res, next) {
-  const { leagueId } = req.body;
+  const { leagueId } = req.params;
 
   try {
     const foundLeague = await League.findById(leagueId);
     foundLeague.fantasyLeagueId = null;
     await foundLeague.save();
-    return res.status(200).send({ league: foundLeague });
+    return res.status(200).send({
+      verify: true,
+      message: 'successfully deleted fantasy league id'
+    });
   } catch (err) {
     return res.status(400).send(err);
   }

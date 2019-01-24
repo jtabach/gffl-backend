@@ -5,7 +5,10 @@ const LeagueController = require('../../controllers/league');
 
 router.get('/:leagueId', LeagueController.getLeague);
 router.post('/', LeagueController.createLeague);
-router.post('/setFantasyLeagueId/:leagueId', LeagueController.setFantasyLeagueId)
-router.post('/deleteFantasyLeagueId', LeagueController.deleteFantasyLeagueId)
+router.post('/fantasyLeagueId/:leagueId', LeagueController.setFantasyLeagueId)
+router.delete('/fantasyLeagueId/:leagueId', LeagueController.deleteFantasyLeagueId)
+
+// TODO: use these routes for basic CRUD
+// router.put('/fantasyLeagueId/:leagueId', LeagueController.changeFantasyLeagueId)
 
 module.exports = router;
