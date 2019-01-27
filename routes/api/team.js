@@ -1,10 +1,13 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
 
-const TeamController = require('../../controllers/team');
+const TeamController = require("../../controllers/team");
 
-router.get('/:leagueId', TeamController.getTeam);
-router.post('/', TeamController.createTeam);
-router.post('/setFantasyEspnCookies/:teamId', TeamController.setFantasyEspnCookies)
+router.get("/:leagueId", TeamController.getTeam);
+router.post("/", TeamController.createTeam);
+router.post(
+  "/setFantasyEspnCookies/:teamId/:fantasyLeagueId",
+  TeamController.setFantasyEspnCookies
+);
 
 module.exports = router;

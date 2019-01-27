@@ -1,11 +1,11 @@
-const mongoose = require('mongoose');
-const _ = require('lodash');
+const mongoose = require("mongoose");
+const _ = require("lodash");
 
-const helper = require('../helpers');
+const helper = require("../helpers");
 
-const Team = require('../models/Team');
-const User = require('../models/User');
-const League = require('../models/League');
+const Team = require("../models/Team");
+const User = require("../models/User");
+const League = require("../models/League");
 
 const LeagueController = {
   getLeague,
@@ -30,14 +30,19 @@ async function getLeague(req, res, next) {
   });
 
   if (!isPermitted) {
-    res.status(400).send({ message: 'You are not in the league' })
+    res.status(400).send({ message: "You are not in the league" });
   }
   return res.status(200).send({ league: populatedLeague });
 }
 
 async function createLeague(req, res, next) {
   const { authToken } = req.cookies;
-  const { espnCookieS2, espnCookieSwid, fantasyLeagueId, leagueName } = req.body
+  const {
+    espnCookieS2,
+    espnCookieSwid,
+    fantasyLeagueId,
+    leagueName
+  } = req.body;
   const user = helper.decodeAuthToken(authToken);
 
   const newLeague = new League();
@@ -48,7 +53,10 @@ async function createLeague(req, res, next) {
   newLeague.admin = user._id;
   newLeague.teams.push(newTeam.id);
 
-  newTeam.espnCookieString = helper.structureEspnCookieString(espnCookieS2, espnCookieSwid);
+  newTeam.espnCookieString = helper.structureEspnCookieString(
+    espnCookieS2,
+    espnCookieSwid
+  );
   newTeam.user = user._id;
   newTeam.league = newLeague.id;
 
@@ -61,7 +69,7 @@ async function createLeague(req, res, next) {
     await foundUser.save();
 
     const populatedTeam = await helper.populateTeam(newTeam);
-    return res.status(200).send({ team: populatedTeam })
+    return res.status(200).send({ team: populatedTeam });
   } catch (err) {
     return res.status(400).send(err);
   }
@@ -71,21 +79,21 @@ async function setFantasyLeagueId(req, res, next) {
   const { leagueId } = req.params;
   const { fantasyLeagueId } = req.body;
 
-  const foundLeague = await League.findById(leagueId);
-  foundLeague.fantasyLeagueId = fantasyLeagueId;
-
   const isLeagueVerified = await _verifyFantasyLeagueId(fantasyLeagueId);
   if (!isLeagueVerified) {
     return res.status(400).send({
       verify: false,
-      message: 'Not a valid ESPN fantasy league id'
+      message: "Not a valid ESPN fantasy league id"
     });
   }
+
+  const foundLeague = await League.findById(leagueId);
+  foundLeague.fantasyLeagueId = fantasyLeagueId;
 
   await foundLeague.save();
   return res.status(200).send({
     verify: true,
-    message: 'fantasy league id set successfully',
+    message: "fantasy league id set successfully",
     fantasyLeagueId: fantasyLeagueId
   });
 }
@@ -99,7 +107,7 @@ async function deleteFantasyLeagueId(req, res, next) {
     await foundLeague.save();
     return res.status(200).send({
       verify: true,
-      message: 'successfully deleted fantasy league id'
+      message: "successfully deleted fantasy league id"
     });
   } catch (err) {
     return res.status(400).send(err);
@@ -107,12 +115,14 @@ async function deleteFantasyLeagueId(req, res, next) {
 }
 
 async function _verifyFantasyLeagueId(fantasyLeagueId) {
-  const ESPN_BASE_URL = 'http://games.espn.com/ffl/api/v2';
+  const ESPN_BASE_URL = "http://games.espn.com/ffl/api/v2";
 
-  const data = await helper.asyncRequest({
-    url: `${ESPN_BASE_URL}/scoreboard?leagueId=${fantasyLeagueId}&matchupPeriodId=1&seasonId=2018`,
-    method: "GET"
-  }).then(response => JSON.parse(response));
+  const data = await helper
+    .asyncRequest({
+      url: `${ESPN_BASE_URL}/scoreboard?leagueId=${fantasyLeagueId}&matchupPeriodId=1&seasonId=2018`,
+      method: "GET"
+    })
+    .then(response => JSON.parse(response));
 
   if (data.scoreboard) {
     return true;
