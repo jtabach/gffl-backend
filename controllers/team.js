@@ -10,7 +10,8 @@ const League = require("../models/League");
 const TeamController = {
   getTeam,
   createTeam,
-  setFantasyEspnCookies
+  setFantasyEspnCookies,
+  deleteFantasyEspnCookies
 };
 
 function getTeam(req, res, next) {
@@ -116,6 +117,22 @@ async function setFantasyEspnCookies(req, res, next) {
     message: "fantasy espn cookies set successfully",
     espnCookieString: foundTeam.espnCookieString
   });
+}
+
+async function deleteFantasyEspnCookies(req, res, next) {
+  const { teamId } = req.params;
+
+  try {
+    const foundTeam = await Team.findById(teamId);
+    foundTeam.espnCookieString = null;
+    await foundTeam.save();
+    return res.status(200).send({
+      verify: true,
+      message: "successfully deleted fantasy espn cookies"
+    });
+  } catch (err) {
+    return res.status(400).send(err);
+  }
 }
 
 async function _verifyFantasyCookie(fantasyLeagueId, espnCookieString) {
