@@ -33,6 +33,7 @@ async function register(req, res, next) {
   user.password = hash;
   user.firstName = firstName;
   user.lastName = lastName;
+  user.notificationSettings = helper.setNotificationSettings();
 
   try {
     const savedUser = await user.save();

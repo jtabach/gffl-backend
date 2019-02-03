@@ -31,6 +31,14 @@ module.exports = {
     return safeUserObject;
   },
 
+  setNotificationSettings() {
+    return {
+      postOnTimeline: true,
+      likeOnPost: true,
+      commentOnPost: true
+    };
+  },
+
   structureEspnCookieString(s2, swid) {
     if (!s2 || !swid) {
       return null;
@@ -42,16 +50,18 @@ module.exports = {
     return new Promise((resolve, reject) => {
       request(options, (error, response, body) => {
         if (error) {
-          reject(error)
+          reject(error);
         } else {
           resolve(body);
         }
-      })
-    })
+      });
+    });
   },
 
   async populateUser(user) {
-    return mongoose.model('User').findById(user._id)
+    return mongoose
+      .model('User')
+      .findById(user._id)
       .populate([
         {
           path: 'teams',
@@ -78,7 +88,9 @@ module.exports = {
   },
 
   async populateUserWithNotifications(user) {
-    return mongoose.model('User').findById(user._id)
+    return mongoose
+      .model('User')
+      .findById(user._id)
       .populate([
         {
           path: 'notifications',
@@ -98,8 +110,7 @@ module.exports = {
   },
 
   async populateLeague(league) {
-    return League.findById(league._id)
-    .populate([
+    return League.findById(league._id).populate([
       {
         path: 'teams',
         populate: {
@@ -148,7 +159,9 @@ module.exports = {
   },
 
   async populateTeam(team) {
-    return mongoose.model('Team').findById(team._id)
+    return mongoose
+      .model('Team')
+      .findById(team._id)
       .populate({ path: 'league' });
   }
 };
