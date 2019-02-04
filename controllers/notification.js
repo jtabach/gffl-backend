@@ -15,6 +15,7 @@ const NotificationController = {
   createPostOnTimelineNotification,
   createLikeOnPostNotification,
   createCommentOnPostNotification,
+  changeNotificationSettings,
   viewNotification,
   viewAllNotifications,
   dismissNotifications
@@ -44,17 +45,22 @@ async function createPostOnTimelineNotification(req, res, next) {
 
   try {
     const foundLeague = await mongoose.model('League').findById(leagueId);
-    const populatedLeague = await mongoose.model('League').findById(leagueId).populate({ path: 'teams'});
+    const populatedLeague = await mongoose
+      .model('League')
+      .findById(leagueId)
+      .populate({ path: 'teams' });
 
-    populatedLeague.teams.forEach(async team => {
+    populatedLeague.teams.forEach(async (team) => {
       const foundUser = await mongoose.model('User').findById(team.user);
 
       // TODO: check if user preferences for recieving notification
       if (actor != team.user) {
-        const postOnTimeline = await mongoose.model('PostOnTimeline')
+        const postOnTimeline = await mongoose
+          .model('PostOnTimeline')
           .create({ actingOn: 'timeline' });
 
-        const newPostOnTimelineNotification = await mongoose.model('Notification')
+        const newPostOnTimelineNotification = await mongoose
+          .model('Notification')
           .create({
             verb: verb,
             actor: actor,
@@ -88,24 +94,24 @@ async function createLikeOnPostNotification(req, res, next) {
     try {
       const foundUser = await mongoose.model('User').findById(patient);
 
-      const likeOnPost = await mongoose.model('LikeOnPost')
-      .create({
+      const likeOnPost = await mongoose.model('LikeOnPost').create({
         actingOn: actingOn,
         post: postId,
         patient: patient
       });
 
-      const newLikeOnPostNotification = await mongoose.model('Notification')
-      .create({
-        verb: verb,
-        actor: actor,
-        league: leagueId,
-        hasViewed: false,
-        hasDismissed: false,
-        date: Date.now(),
-        notificationType: likeOnPost._id,
-        onModel: 'LikeOnPost'
-      });
+      const newLikeOnPostNotification = await mongoose
+        .model('Notification')
+        .create({
+          verb: verb,
+          actor: actor,
+          league: leagueId,
+          hasViewed: false,
+          hasDismissed: false,
+          date: Date.now(),
+          notificationType: likeOnPost._id,
+          onModel: 'LikeOnPost'
+        });
 
       foundUser.notifications.push(newLikeOnPostNotification);
       await foundUser.save();
@@ -128,24 +134,24 @@ async function createCommentOnPostNotification(req, res, next) {
     try {
       const foundUser = await mongoose.model('User').findById(patient);
 
-      const commentOnPost = await mongoose.model('CommentOnPost')
-      .create({
+      const commentOnPost = await mongoose.model('CommentOnPost').create({
         actingOn: actingOn,
         post: postId,
         patient: patient
       });
 
-      const newCommentOnPostNotification = await mongoose.model('Notification')
-      .create({
-        verb: verb,
-        actor: actor,
-        league: leagueId,
-        hasViewed: false,
-        hasDismissed: false,
-        date: Date.now(),
-        notificationType: commentOnPost._id,
-        onModel: 'CommentOnPost'
-      });
+      const newCommentOnPostNotification = await mongoose
+        .model('Notification')
+        .create({
+          verb: verb,
+          actor: actor,
+          league: leagueId,
+          hasViewed: false,
+          hasDismissed: false,
+          date: Date.now(),
+          notificationType: commentOnPost._id,
+          onModel: 'CommentOnPost'
+        });
 
       foundUser.notifications.push(newCommentOnPostNotification);
       await foundUser.save();
@@ -158,11 +164,34 @@ async function createCommentOnPostNotification(req, res, next) {
   }
 }
 
+async function changeNotificationSettings(req, res, next) {
+  const notificationSettings = req.body;
+  let { authToken } = req.cookies;
+  let user = helper.decodeAuthToken(authToken);
+
+  try {
+    const foundUser = await mongoose.model('User').findById(user);
+    foundUser.notificationSettings = notificationSettings;
+    await foundUser.save();
+    return res.status(200).send({
+      verify: true,
+      message: 'Notification settings saved successfully'
+    });
+  } catch (err) {
+    return res.status(400).send({
+      verify: false,
+      message: 'Could not save notification settings'
+    });
+  }
+}
+
 async function viewNotification(req, res, next) {
   const notification = req.body;
 
   try {
-    const foundNotification = await mongoose.model('Notification').findById(notification._id)
+    const foundNotification = await mongoose
+      .model('Notification')
+      .findById(notification._id);
     foundNotification.hasViewed = true;
     const savedNotification = await foundNotification.save();
 
@@ -177,7 +206,10 @@ async function viewAllNotifications(req, res, next) {
   const notifications = req.body;
 
   try {
-    const savedNotifications = await _changeAllNotificationsFlag(notifications, 'hasViewed');
+    const savedNotifications = await _changeAllNotificationsFlag(
+      notifications,
+      'hasViewed'
+    );
 
     return res.status(200).send({ notifications: savedNotifications });
   } catch (err) {
@@ -189,7 +221,10 @@ async function dismissNotifications(req, res, next) {
   const notifications = req.body;
 
   try {
-    const savedNotifications = await _changeAllNotificationsFlag(notifications, 'hasDismissed');
+    const savedNotifications = await _changeAllNotificationsFlag(
+      notifications,
+      'hasDismissed'
+    );
 
     return res.status(200).send({ notifications: savedNotifications });
   } catch (err) {
@@ -198,8 +233,10 @@ async function dismissNotifications(req, res, next) {
 }
 
 async function _changeAllNotificationsFlag(notifications, property) {
-  return notifications.map(async notification => {
-    const foundNotification = await mongoose.model('Notification').findById(notification._id);
+  return notifications.map(async (notification) => {
+    const foundNotification = await mongoose
+      .model('Notification')
+      .findById(notification._id);
     foundNotification[property] = true;
     const savedNotification = await foundNotification.save();
     return savedNotification;
