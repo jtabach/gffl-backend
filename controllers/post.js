@@ -27,7 +27,7 @@ async function createPost(req, res, next) {
     const league = await mongoose.model('League').findById(leagueId);
     league.posts.push(newPost._id);
 
-    const savedLeague = await league.save();
+    await league.save();
     const savedPost = await newPost.save();
     const populatedPost = await mongoose.model('Post').populate(savedPost, {
       path: 'team',
@@ -49,10 +49,12 @@ async function deletePost(req, res, next) {
   try {
     await mongoose.model('Comment').deleteMany({ _id: post.comments });
     await mongoose.model('Like').deleteMany({ _id: post.likes });
-    const deletedPost = await mongoose.model('Post').findByIdAndRemove(post._id);
+    const deletedPost = await mongoose
+      .model('Post')
+      .findByIdAndRemove(post._id);
     const foundLeague = await mongoose.model('League').findById(post.league);
 
-    foundLeague.posts = foundLeague.posts.filter(leaguePost => {
+    foundLeague.posts = foundLeague.posts.filter((leaguePost) => {
       return post._id != leaguePost._id;
     });
 

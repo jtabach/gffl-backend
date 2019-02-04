@@ -54,7 +54,7 @@ async function createPostOnTimelineNotification(req, res, next) {
       const foundUser = await mongoose.model('User').findById(team.user);
 
       // TODO: check if user preferences for recieving notification
-      if (actor != team.user) {
+      if (actor != team.user && foundUser.notificationSettings.postOnTimeline) {
         const postOnTimeline = await mongoose
           .model('PostOnTimeline')
           .create({ actingOn: 'timeline' });
@@ -89,11 +89,10 @@ async function createLikeOnPostNotification(req, res, next) {
   let user = helper.decodeAuthToken(authToken);
   const { leagueId, verb, actingOn, actor, patient, postId } = req.body;
   // TODO: since actor is passed from client verify perms to create notification
+  const foundUser = await mongoose.model('User').findById(patient);
 
-  if (actor != patient) {
+  if (actor != patient && foundUser.notificationSettings.likeOnPost) {
     try {
-      const foundUser = await mongoose.model('User').findById(patient);
-
       const likeOnPost = await mongoose.model('LikeOnPost').create({
         actingOn: actingOn,
         post: postId,
@@ -129,11 +128,10 @@ async function createCommentOnPostNotification(req, res, next) {
   let user = helper.decodeAuthToken(authToken);
   const { leagueId, verb, actingOn, actor, patient, postId } = req.body;
   // TODO: since actor is passed from client verify perms to create notification
+  const foundUser = await mongoose.model('User').findById(patient);
 
-  if (actor != patient) {
+  if (actor != patient && foundUser.notificationSettings.commentOnTimeline) {
     try {
-      const foundUser = await mongoose.model('User').findById(patient);
-
       const commentOnPost = await mongoose.model('CommentOnPost').create({
         actingOn: actingOn,
         post: postId,
