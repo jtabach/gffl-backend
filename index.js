@@ -1,5 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const cors = require('cors');
 const passport = require('passport');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
@@ -27,6 +28,7 @@ app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 
+app.options('*', cors());
 app.use('/api', require('./routes/api'));
 app.get('/*', (req, res, next) => {
   res.send('worker demo2');
