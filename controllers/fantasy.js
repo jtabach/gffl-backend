@@ -34,7 +34,7 @@ const rosterDefaultPositionDict = {
   4: 'TE',
   5: 'K',
   16: 'D/ST'
-}
+};
 
 const rosterSlotStarters = [0, 2, 4, 6, 23, 16, 17];
 
@@ -42,17 +42,24 @@ async function getStandings(req, res, next) {
   const { fantasyLeagueId } = req.params;
 
   if (!CACHE[fantasyLeagueId]) {
-    CACHE[fantasyLeagueId] = {}
+    CACHE[fantasyLeagueId] = {};
   }
 
-  if (CACHE[fantasyLeagueId].standings && (Date.now() - CACHE[fantasyLeagueId].standings.lastUpdated) < CACHE_TIME) {
-    return res.status(200).send({ standings: CACHE[fantasyLeagueId].standings.content });;
+  if (
+    CACHE[fantasyLeagueId].standings &&
+    Date.now() - CACHE[fantasyLeagueId].standings.lastUpdated < CACHE_TIME
+  ) {
+    return res
+      .status(200)
+      .send({ standings: CACHE[fantasyLeagueId].standings.content });
   }
 
-  const data = await helper.asyncRequest({
+  const data = await helper
+    .asyncRequest({
       url: `${ESPN_BASE_URL}/standings?leagueId=${fantasyLeagueId}&seasonId=2018`,
-      method: "GET"
-  }).then(response => JSON.parse(response));
+      method: 'GET'
+    })
+    .then((response) => JSON.parse(response));
 
   const standingsData = {
     content: _structureStandingsData(data.teams),
@@ -61,16 +68,20 @@ async function getStandings(req, res, next) {
 
   CACHE[fantasyLeagueId].standings = standingsData;
 
-  return res.status(200).send({ standings: CACHE[fantasyLeagueId].standings.content });
+  return res
+    .status(200)
+    .send({ standings: CACHE[fantasyLeagueId].standings.content });
 }
 
 async function getScores(req, res, next) {
   const { fantasyLeagueId, matchupPeriodId } = req.params;
 
-  const data = await helper.asyncRequest({
-    url: `${ESPN_BASE_URL}/scoreboard?leagueId=${fantasyLeagueId}&matchupPeriodId=${matchupPeriodId}&seasonId=2018`,
-    method: "GET"
-  }).then(response => JSON.parse(response));
+  const data = await helper
+    .asyncRequest({
+      url: `${ESPN_BASE_URL}/scoreboard?leagueId=${fantasyLeagueId}&matchupPeriodId=${matchupPeriodId}&seasonId=2018`,
+      method: 'GET'
+    })
+    .then((response) => JSON.parse(response));
 
   return res.status(200).send({ scores: data.scoreboard.matchups });
 }
@@ -80,13 +91,16 @@ async function getRoster(req, res, next) {
 
   const foundTeam = await Team.findById(teamId);
 
-  const data = await helper.asyncRequest({
-    url: `${ESPN_BASE_URL}/rosterInfo?leagueId=${fantasyLeagueId}&seasonId=2018`,
-    method: "GET",
-    headers: {
-     'Cookie': foundTeam.espnCookieString
-    }
-  }).then(response => JSON.parse(response));
+  const data = await helper
+    .asyncRequest({
+      url: `${ESPN_BASE_URL}/rosterInfo?leagueId=${fantasyLeagueId}&seasonId=2018`,
+      method: 'GET',
+      mode: 'cors',
+      headers: {
+        Cookie: foundTeam.espnCookieString
+      }
+    })
+    .then((response) => JSON.parse(response));
 
   const roster = _structureRosterData(data.leagueRosters.teams[0]);
 
@@ -103,7 +117,13 @@ function _structureStandingsData(teams) {
     if (!divisions[division.divisionId]) {
       divisions[division.divisionId] = [];
     }
-    divisions[division.divisionId].push({ teamLocation, teamNickname, owners, record, division });
+    divisions[division.divisionId].push({
+      teamLocation,
+      teamNickname,
+      owners,
+      record,
+      division
+    });
   });
 
   const sortedDivision = _.mapValues(divisions, (teams) => {
@@ -115,25 +135,26 @@ function _structureStandingsData(teams) {
 
 function _structureRosterData(roster) {
   const structuredRoster = {
-    slots: roster.slots.map(slot => {
+    slots: roster.slots.map((slot) => {
       if (!slot.player) {
         return {
           slotCategoryId: slot.slotCategoryId,
           slotPosition: rosterSlotPositionDict[slot.slotCategoryId],
           isFilled: false
-        }
+        };
       }
       return {
         slotCategoryId: slot.slotCategoryId,
         slotPosition: rosterSlotPositionDict[slot.slotCategoryId],
         defaultPositionId: slot.player.defaultPositionId,
-        defaultPosition: rosterDefaultPositionDict[slot.player.defaultPositionId],
+        defaultPosition:
+          rosterDefaultPositionDict[slot.player.defaultPositionId],
         player: {
           firstName: slot.player.firstName,
           lastName: slot.player.lastName
         },
         isFilled: true
-      }
+      };
     }),
     info: {
       teamLocation: roster.team.teamLocation,
@@ -145,8 +166,8 @@ function _structureRosterData(roster) {
   };
 
   const partitionedRoster = {
-    slots: _.partition(structuredRoster.slots, slot => {
-      return _.includes(rosterSlotStarters, slot.slotCategoryId)
+    slots: _.partition(structuredRoster.slots, (slot) => {
+      return _.includes(rosterSlotStarters, slot.slotCategoryId);
     }),
     info: structuredRoster.info
   };
