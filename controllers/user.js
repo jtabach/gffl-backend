@@ -14,12 +14,23 @@ const UserController = {
 async function getUser(req, res, next) {
   const { authToken } = req.cookies;
   const user = helper.decodeAuthToken(authToken);
+
   if (!user) {
-    return res.status(400).send({ user: false });
-  } else {
-    const populatedUser = await helper.populateUser(user);
+    res.status(400);
+    return next(new Error('User not found'));
+  }
+  let populatedUser;
+
+  try {
+    populatedUser = await helper.populateUser(user).catch((error) => {
+      throw 'Failed to fetch user';
+    });
     const safeUserObject = helper.getSafeUserObject(populatedUser._doc);
+
     return res.status(200).send({ user: safeUserObject });
+  } catch (err) {
+    res.status(400);
+    return next(new Error(err));
   }
 }
 

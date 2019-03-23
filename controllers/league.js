@@ -19,8 +19,7 @@ async function getLeague(req, res, next) {
   let user = helper.decodeAuthToken(authToken);
   let leagueId = req.params.leagueId;
   if (!user) {
-    const error = new Error('User not found');
-    console.log('errer', error);
+    res.status(401);
     return next(new Error('User not found'));
   }
 
@@ -28,18 +27,17 @@ async function getLeague(req, res, next) {
   let populatedLeague;
   try {
     foundLeague = await League.findById(leagueId).catch((error) => {
-      error.message = 'Failed to find league';
-      throw error;
+      throw 'Failed to find league';
     });
 
     populatedLeague = await helper
       .populateLeague(foundLeague)
       .catch((error) => {
-        error.message = 'Failed to populate league';
-        throw error;
+        throw 'Failed to populate league';
       });
   } catch (err) {
-    return next(error);
+    res.status(500);
+    return next(new Error(err));
   }
 
   const isPermitted = _.find(populatedLeague.teams, function(team) {
