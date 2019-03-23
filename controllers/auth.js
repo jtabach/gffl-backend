@@ -48,27 +48,20 @@ async function register(req, res, next) {
 
 async function login(req, res, next) {
   if (!req.body.email || !req.body.password) {
-    // TODO: different status than default 500
-    return next({
-      status: 400,
-      message: 'Missing e-mail or password'
-    });
+    res.status(400);
+    return next(new Error('Incorrect e-mail or password'));
   }
 
   const foundUser = await User.findOne({ email: req.body.email });
   if (!foundUser) {
-    return next({
-      status: 400,
-      message: 'Incorrect e-mail or password'
-    });
+    res.status(400);
+    return next(new Error('Incorrect e-mail or password'));
   }
 
   const isMatch = await bcrypt.compare(req.body.password, foundUser.password);
   if (!isMatch) {
-    return next({
-      status: 400,
-      message: 'Incorrect e-mail or password'
-    });
+    res.status(400);
+    return next(new Error('Incorrect e-mail or password'));
   }
 
   const authToken = helper.encodeAuthToken(foundUser);
@@ -84,10 +77,8 @@ async function login(req, res, next) {
 
     return res.status(200).send({ user: safeUserObject });
   } catch (err) {
-    return next({
-      status: 500,
-      message: err
-    });
+    res.status(500);
+    return next(new Error(err));
   }
 }
 

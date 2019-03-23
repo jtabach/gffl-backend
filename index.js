@@ -7,8 +7,9 @@ const cookieParser = require('cookie-parser');
 
 const keys = require('./config/keys');
 const newsService = require('./service/newsService');
-const clientErrorHandler = require('./services/clientErrorHandler').default;
 const logErrors = require('./services/logErrors');
+const clientErrorHandler = require('./services/clientErrorHandler');
+const errorHandler = require('./services/errorHandler');
 
 require('./models/GoogleUser');
 require('./models/User');
@@ -34,6 +35,7 @@ app.options('*', cors());
 app.use('/api', require('./routes/api'));
 app.use(logErrors);
 app.use(clientErrorHandler);
+app.use(errorHandler);
 app.get('/*', (req, res, next) => {
   res.send('worker demo2');
 });
