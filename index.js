@@ -30,6 +30,9 @@ app.use(cookieParser());
 
 app.options('*', cors());
 app.use('/api', require('./routes/api'));
+app.use(function(err, req, res, next) {
+  res.status(500).send(err);
+});
 app.get('/*', (req, res, next) => {
   res.send('worker demo2');
 });

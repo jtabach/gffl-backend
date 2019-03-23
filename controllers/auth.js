@@ -37,12 +37,9 @@ async function register(req, res, next) {
 
   try {
     const savedUser = await user.save();
-    console.log('savedUser', savedUser);
     const authToken = helper.encodeAuthToken(savedUser);
-    console.log('authToken', authToken);
     res.cookie('authToken', authToken);
     const safeUserObject = helper.getSafeUserObject(savedUser._doc);
-    console.log('safeUser', safeUserObject);
     return res.status(200).send({ user: safeUserObject });
   } catch (err) {
     return res.status(400).send(err);
@@ -81,11 +78,6 @@ async function login(req, res, next) {
 function logout(req, res, next) {
   res.clearCookie('authToken');
   return res.status(200).send({ user: false });
-}
-
-function getSafeUserObject(user) {
-  const { password, ...safeUser } = user;
-  return safeUser;
 }
 
 module.exports = AuthController;
