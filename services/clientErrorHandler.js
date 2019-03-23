@@ -1,7 +1,9 @@
 module.exports = (err, req, res, next) => {
-  console.log('xhr', req.xhr);
+  if (req.xhr) {
+    const { status, message } = err;
 
-  const { status, message } = err;
-
-  res.status(status || 500).send(message);
+    res.status(status || 500).send(message);
+  } else {
+    next(err);
+  }
 };

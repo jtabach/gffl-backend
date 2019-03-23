@@ -7,7 +7,7 @@ const cookieParser = require('cookie-parser');
 
 const keys = require('./config/keys');
 const newsService = require('./service/newsService');
-const clientErrorHandler = require('./services/clientErrorHandler');
+const clientErrorHandler = require('./services/clientErrorHandler').default;
 const logErrors = require('./services/logErrors');
 
 require('./models/GoogleUser');
