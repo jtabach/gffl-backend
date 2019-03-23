@@ -84,8 +84,6 @@ async function login(req, res, next) {
 
     return res.status(200).send({ user: safeUserObject });
   } catch (err) {
-    console.log(err);
-    console.log(err.reponse);
     return next({
       status: 500,
       message: err
