@@ -7,6 +7,7 @@ const cookieParser = require('cookie-parser');
 
 const keys = require('./config/keys');
 const newsService = require('./service/newsService');
+const clientErrorHandler = require('./services/clientErrorHandler');
 
 require('./models/GoogleUser');
 require('./models/User');
@@ -30,9 +31,7 @@ app.use(cookieParser());
 
 app.options('*', cors());
 app.use('/api', require('./routes/api'));
-app.use(function(err, req, res, next) {
-  res.status(500).send(err);
-});
+app.use(clientErrorHandler);
 app.get('/*', (req, res, next) => {
   res.send('worker demo2');
 });
