@@ -19,10 +19,9 @@ async function getLeague(req, res, next) {
   let user = helper.decodeAuthToken(authToken);
   let leagueId = req.params.leagueId;
   if (!user) {
-    return next({
-      name: 'UserNotFound',
-      message: 'User not found'
-    });
+    const error = new Error('User not found');
+    console.log('errer', error);
+    return next(new Error('User not found'));
   }
 
   let foundLeague;
@@ -40,10 +39,7 @@ async function getLeague(req, res, next) {
         throw error;
       });
   } catch (err) {
-    return next({
-      error: error.name,
-      message: error.message
-    });
+    return next(error);
   }
 
   const isPermitted = _.find(populatedLeague.teams, function(team) {
@@ -51,10 +47,15 @@ async function getLeague(req, res, next) {
   });
 
   if (!isPermitted) {
-    return next({
-      name: 'UserNotPermitted',
-      message: 'User not permitted'
-    });
+    let error = new Error();
+    error.message = 'User not permitted';
+    console.log(error);
+    return next(error);
+
+    // return next({
+    //   name: 'UserNotPermitted',
+    //   message: 'User not permitted'
+    // });
   }
   return res.status(200).send({ league: populatedLeague });
 }

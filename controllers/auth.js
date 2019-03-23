@@ -48,31 +48,49 @@ async function register(req, res, next) {
 
 async function login(req, res, next) {
   if (!req.body.email || !req.body.password) {
-    return res
-      .status(400)
-      .send({ user: false, message: 'Missing e-mail or password' });
+    // TODO: different status than default 500
+    return next({
+      status: 400,
+      message: 'Missing e-mail or password'
+    });
   }
 
   const foundUser = await User.findOne({ email: req.body.email });
   if (!foundUser) {
-    return res
-      .status(400)
-      .send({ user: false, message: 'Incorrect email or password' });
+    return next({
+      status: 400,
+      message: 'Incorrect e-mail or password'
+    });
   }
 
   const isMatch = await bcrypt.compare(req.body.password, foundUser.password);
   if (!isMatch) {
-    return res
-      .status(400)
-      .send({ user: false, message: 'Incorrect email or password' });
+    return next({
+      status: 400,
+      message: 'Incorrect e-mail or password'
+    });
   }
 
   const authToken = helper.encodeAuthToken(foundUser);
   res.cookie('authToken', authToken);
 
-  const populatedUser = await helper.populateUser(foundUser);
-  const safeUserObject = helper.getSafeUserObject(populatedUser._doc);
-  return res.status(200).send({ user: safeUserObject });
+  let populatedUser;
+  let safeUserObject;
+  try {
+    populatedUser = await helper.populateUser(foundUser).catch((error) => {
+      throw 'Failed to fetch user';
+    });
+    safeUserObject = helper.getSafeUserObject(populatedUser._doc);
+
+    return res.status(200).send({ user: safeUserObject });
+  } catch (err) {
+    console.log(err);
+    console.log(err.reponse);
+    return next({
+      status: 500,
+      message: err
+    });
+  }
 }
 
 function logout(req, res, next) {

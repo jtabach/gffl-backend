@@ -1,3 +1,5 @@
 module.exports = (err, req, res, next) => {
-  res.status(500).send(err);
+  const { status, message } = err;
+
+  res.status(status || 500).send(message);
 };
